@@ -22,12 +22,12 @@ File audioFile;
 
 void createFile() {
     String potentialFileName = "test.txt";
-    if ( !SD.exists(potentialFileName) ) {
-        audioFile = SD.open( potentialFileName, FILE_WRITE );
+    if ( !SD.exists("test.txt") ) {
+        audioFile = SD.open( "test.txt", FILE_WRITE );
         return;
     } else {
-        SD.remove( potentialFileName );
-        audioFile = SD.open( potentialFileName, FILE_WRITE );
+        SD.remove( "test.txt" );
+        audioFile = SD.open( "test.txt", FILE_WRITE );
         return;
     }
 }
@@ -68,6 +68,9 @@ void setup() {
         inErorrState = true;
         return;
     } 
+    File logger = SD.open( "duh.txt", FILE_WRITE );
+    logger.println( "Fuck this shit I'm out" );
+    logger.close();
     initializeFile();
 }
 
