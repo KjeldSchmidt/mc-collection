@@ -35,28 +35,28 @@ void writeNumToFile( uint32_t num) {
     byte byte2 = num >> 8;
     byte byte3 = num >> 0;
 
-    audioFile.write( byte0 );
-    audioFile.write( byte1 );
-    audioFile.write( byte2 );
     audioFile.write( byte3 );
+    audioFile.write( byte2 );
+    audioFile.write( byte1 );
+    audioFile.write( byte0 );
 }
 
 void writeNumToFile( uint16_t num) {
     byte byte0 = num >> 8;
     byte byte1 = num >> 0;
 
-    audioFile.write( byte0 );
     audioFile.write( byte1 );
+    audioFile.write( byte0 );
 }
 
 void createFile() {
-    String potentialFileName = "test.txt";
-    if ( !SD.exists("test.txt") ) {
-        audioFile = SD.open( "test.txt", FILE_WRITE );
+    String potentialFileName = "audio.wav";
+    if ( !SD.exists("audio.wav") ) {
+        audioFile = SD.open( "audio.wav", FILE_WRITE );
         return;
     } else {
-        SD.remove( "test.txt" );
-        audioFile = SD.open( "test.txt", FILE_WRITE );
+        SD.remove( "audio.wav" );
+        audioFile = SD.open( "audio.wav", FILE_WRITE );
         return;
     }
 }
@@ -114,7 +114,7 @@ void loop() {
     currentTime = micros();
 
     if ( currentTime < 60UL*1000000UL && previousSampleTime + samplePeriod <= currentTime ) {
-        audioData[ dataOffset ] = analogRead( MIC_PIN );
+        audioData[ dataOffset ] = (analogRead( MIC_PIN ) >> 2) - 127;
         ++dataOffset;
         previousSampleTime = currentTime;
     }
