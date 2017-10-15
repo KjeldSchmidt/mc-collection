@@ -114,7 +114,7 @@ void loop() {
     currentTime = micros();
 
     if ( currentTime < 60UL*1000000UL && previousSampleTime + samplePeriod <= currentTime ) {
-        audioData[ dataOffset ] = (analogRead( MIC_PIN ) >> 2) - 127;
+        audioData[ dataOffset ] = analogRead( MIC_PIN ) - 127;
         ++dataOffset;
         previousSampleTime = currentTime;
     }
