@@ -2,7 +2,7 @@
 #include <FastLED.h>
 
 #define RED_PIN A0
-#define GREEN_PIN A1
+#define GREEN_PIN A2
 #define BLUE_PIN A3
 
 #define NUM_LEDS 16
