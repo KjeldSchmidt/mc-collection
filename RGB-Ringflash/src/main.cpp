@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <FastLED.h>
 
-#define RED_PIN A1
-#define GREEN_PIN A0
+#define RED_PIN A0
+#define GREEN_PIN A1
 #define BLUE_PIN A3
 
 #define NUM_LEDS 16
@@ -10,7 +10,7 @@
 
 CRGB leds[NUM_LEDS];
 
-CRGB color1;
+CRGB color;
 
 uint8_t redReading = 0;
 uint8_t greenReading = 0;
@@ -23,7 +23,6 @@ void setup() {
     pinMode(RED_PIN, INPUT);
     pinMode(GREEN_PIN, INPUT);
     pinMode(BLUE_PIN, INPUT);
-    pinMode(SWITCH_PIN, OUTPUT);
     delay(1000);
     FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
 }
@@ -32,11 +31,9 @@ void loop() {
     redReading = analogRead(RED_PIN) / 4;
     greenReading = analogRead(GREEN_PIN) / 4;
     blueReading = analogRead(BLUE_PIN) / 4;
-    color1 = CRGB(redReading, greenReading, blueReading);
+    color = CRGB(greenReading, redReading, blueReading);
 
-    for (int i = 0; i < NUM_LEDS; ++i) {
-        leds[i] = color1;
-    }
+    fill_solid( &(leds[0]), NUM_LEDS, color);
     FastLED.show();
 
     delay(200);
