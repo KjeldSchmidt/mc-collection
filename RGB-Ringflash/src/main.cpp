@@ -5,8 +5,6 @@
 #define GREEN_PIN A0
 #define BLUE_PIN A3
 
-#define SWITCH_PIN 4
-
 #define NUM_LEDS 16
 #define DATA_PIN 9
 
@@ -26,17 +24,11 @@ void setup() {
     pinMode(GREEN_PIN, INPUT);
     pinMode(BLUE_PIN, INPUT);
     pinMode(SWITCH_PIN, OUTPUT);
-    Serial.begin(9600);
     delay(1000);
     FastLED.addLeds<WS2811, DATA_PIN, RGB>(leds, NUM_LEDS);
 }
 
 void loop() {
-    prevMode = mode;
-    mode = digitalRead( SWITCH_PIN );
-    Serial.println(mode, DEC);
-    delay(200);
-
     redReading = analogRead(RED_PIN) / 4;
     greenReading = analogRead(GREEN_PIN) / 4;
     blueReading = analogRead(BLUE_PIN) / 4;
@@ -46,4 +38,6 @@ void loop() {
         leds[i] = color1;
     }
     FastLED.show();
+
+    delay(200);
 }
