@@ -1,5 +1,6 @@
 {
     "terminal.integrated.env.linux": {
-        "PATH": "/home/kjeld/.platformio/penv/bin:/home/kjeld/bin:/home/kjeld/.local/bin:/home/kjeld/.sdkman/candidates/gradle/current/bin:/home/kjeld/bin:/home/kjeld/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+        "PATH": "/home/kjeld/.platformio/penv/bin:/home/kjeld/.platformio/penv:/home/kjeld/bin:/home/kjeld/.local/bin:/home/kjeld/.sdkman/candidates/gradle/current/bin:/home/kjeld/bin:/home/kjeld/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "PLATFORMIO_CALLER": "vscode"
     }
 }
