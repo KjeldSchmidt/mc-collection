@@ -32,9 +32,9 @@ char calc(int freq, char pos) {
 void loop() {
 	if ( millis() > lastLoopTime + LOOP_WAIT_TIME ) {
 		for ( int i = 0; i < NUM_LEDS; ++i ) {
-			red = calc( RED_WAVES_PER_STRIP,i );
-			green = calc( GREEN_WAVES_PER_STRIP,i );
-			blue = calc( BLUE_WAVES_PER_STRIP,i );
+			red = calc( RED_WAVES_PER_STRIP, (i + offset*RED_WAVES_PER_STRIP) % NUM_LEDS );
+			green = calc( GREEN_WAVES_PER_STRIP, (i + offset*GREEN_WAVES_PER_STRIP) % NUM_LEDS );
+			blue = calc( BLUE_WAVES_PER_STRIP, (i + offset*BLUE_WAVES_PER_STRIP) % NUM_LEDS );
 
 			leds[ (i + offset) % NUM_LEDS  ] = CRGB( red, green, blue );
 			++offset;
