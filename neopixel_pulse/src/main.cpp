@@ -1,23 +1,23 @@
 #import <Arduino.h>
 #import <FastLED.h>
 
-#define NUM_LEDS 144
+#define NUM_LEDS 16
 #define LED_DATA_PIN 9
 
-#define MAXIMUM_BRIGHTNESS_PER_CHANNEL 50
-#define LOOP_WAIT_TIME 50
+#define MAXIMUM_BRIGHTNESS_PER_CHANNEL 5
+#define LOOP_WAIT_TIME 3000
 
-#define RED_WAVES_PER_STRIP 3
-#define GREEN_WAVES_PER_STRIP 2
-#define BLUE_WAVES_PER_STRIP 1
+#define RED_WAVES_PER_STRIP 2
+#define GREEN_WAVES_PER_STRIP 3
+#define BLUE_WAVES_PER_STRIP 4
 
 long lastLoopTime = 0;
 
-char red;
-char green;
-char blue;
+unsigned char red;
+unsigned char green;
+unsigned char blue;
 
-char offset = 0;
+unsigned char offset = 0;
 
 CRGBArray<NUM_LEDS> leds;
 
@@ -25,22 +25,23 @@ void setup() {
 	FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);
 }
 
-char calc(int freq, char pos) {
-	return (char) (cos( PI*freq*pos / NUM_LEDS ) + 1) * MAXIMUM_BRIGHTNESS_PER_CHANNEL/2;
+unsigned char calc(int freq, float pos) {
+	return (char) (cos( pos*PI*freq*2 / NUM_LEDS ) * MAXIMUM_BRIGHTNESS_PER_CHANNEL) + (MAXIMUM_BRIGHTNESS_PER_CHANNEL + 1);
 }
 
 void loop() {
+	unsigned long time = millis();
+	for ( int i = 0; i < NUM_LEDS; ++i ) {
+		red = calc( RED_WAVES_PER_STRIP, (float) i - ( (float) ( time % LOOP_WAIT_TIME ) / (float) LOOP_WAIT_TIME ) );
+		green = calc( GREEN_WAVES_PER_STRIP, (float) i - ( (float) ( time % LOOP_WAIT_TIME ) / (float) LOOP_WAIT_TIME ) );
+		blue = calc( BLUE_WAVES_PER_STRIP, (float) i - ( (float) ( time % LOOP_WAIT_TIME ) / (float) LOOP_WAIT_TIME ) );
+
+		leds[ ( i + offset ) % NUM_LEDS ] = CRGB( red, green, blue );
+	}
+	FastLED.show();
+
 	if ( millis() > lastLoopTime + LOOP_WAIT_TIME ) {
-		for ( int i = 0; i < NUM_LEDS; ++i ) {
-			red = calc( RED_WAVES_PER_STRIP, (i + offset*RED_WAVES_PER_STRIP) % NUM_LEDS );
-			green = calc( GREEN_WAVES_PER_STRIP, (i + offset*GREEN_WAVES_PER_STRIP) % NUM_LEDS );
-			blue = calc( BLUE_WAVES_PER_STRIP, (i + offset*BLUE_WAVES_PER_STRIP) % NUM_LEDS );
-
-			leds[ (i + offset) % NUM_LEDS  ] = CRGB( red, green, blue );
-			++offset;
-		}
-
-		FastLED.show();
-		lastLoopTime = millis();
+		lastLoopTime = time;
+		++offset;
 	}
 }
