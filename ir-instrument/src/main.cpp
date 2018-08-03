@@ -47,4 +47,5 @@ void setup() {
 void loop() {
 	readAll();
 	serialPrintAll();
+	delay(5);
 }
