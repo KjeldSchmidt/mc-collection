@@ -24,32 +24,24 @@ void readAll() {
 
 void serialPrintAll() {
 	String out = "";
-	out = out + "A1: ";
 	out = out + a1;
-	out = out + "  |  ";
-	out = out + "A2: ";
+	out = out + " ";
 	out = out + a2;
-	out = out + "  |  ";
-	out = out + "A3: ";
+	out = out + " ";
 	out = out + a3;
-	out = out + "  |  ";
-	out = out + "A4: ";
+	out = out + " ";
 	out = out + a4;
-	out = out + "  |  ";
-	out = out + "A5: ";
+	out = out + " ";
 	out = out + a5;
-	out = out + "  |  ";
-	out = out + "A6: ";
+	out = out + " ";
 	out = out + a6;
-	out = out + "  |  ";
-	out = out + "A7: ";
+	out = out + " ";
 	out = out + a7;
-	out = out + "  |  ";
 	Serial.println( out );
 }
 
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(250000);
 }
 
 void loop() {
