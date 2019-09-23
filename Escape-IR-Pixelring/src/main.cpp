@@ -19,8 +19,8 @@ bool isWon = false;
 int numbersEntered = 0;
 
 
-// HIER DEINEN GEHEIMCODE EINGEBEN
-int secretCode [3] = {3, 4, 5};
+// HIER DEINEN GEHEIMCODE
+int secretCode [3] = {5, 3, 9};
 
 
 
