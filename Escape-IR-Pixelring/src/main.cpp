@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#include <IRremote.h>
 #include <FastLED.h>
 
 #define NUM_LEDS 16
@@ -8,10 +7,6 @@
 #define redLedPin 5
 #define greenLedPin 5
 
-int RECV_PIN = 10;
-
-IRrecv irrecv(RECV_PIN);
-decode_results results;
 CRGBArray<NUM_LEDS> leds;
 
 bool codeCorrect = false;
@@ -19,8 +14,8 @@ bool isWon = false;
 int numbersEntered = 0;
 
 
-// HIER DEINEN GEHEIMCODE
-int secretCode [3] = {5, 3, 9};
+// HIER DEINEN GEHEIMCODE EINGEBEN
+int secretCode [3] = {3, 4, 5};
 
 
 
@@ -51,60 +46,6 @@ void blinkRed( int initialBlink, int blinkSpeed ) {
   colorAll(120, 0, 0);
 }
 
-int decodeIR( int hex ) { // Indicate what key is pressed
-
-  switch(hex) {
-
-    case 0xFF6897:  
-      return 1;
-      break;
-  
-    case 0xFF9867:  
-      return 2;
-      break;
-  
-    case 0xFFB04F:  
-      return 3;
-      break;
-  
-    case 0xFF30CF:  
-      return 4;
-      break;
-  
-    case 0xFF18E7:  
-      return 5;
-      break;
-  
-    case 0xFF7A85:  
-      return 6;
-      break;
-  
-    case 0xFF10EF:  
-      return 7;
-      break;
-  
-    case 0xFF38C7:  
-      return 8;
-      break;
-  
-    case 0xFF5AA5:  
-      return 9;
-      break;
-  
-    case 0xFF4AB5:  
-      return 0;
-      break;
-
-    case 0xFFFFFFFF:
-      return -2;
-      break;
-  
-    default: 
-     return -1;
-     break;
-  }
-}
-
 void evaluateCode() {
   if ( codeCorrect ) {
     win();
@@ -133,27 +74,64 @@ void enterCode( int enteredNumber ) {
     }
   }
 }
- 
-void setup()
-{
-  Serial.begin(9600);
-  // In case the interrupt driver crashes on setup, give a clue
-  // to the user what's going on.
-  Serial.println("Enabling IRin");
-  irrecv.enableIRIn(); // Start the receiver
-  Serial.println("Enabled IRin");
+
+int read() {
+  bool gotValue = false;
+  int value = -1;
+  if ( digitalRead(4) && !gotValue ) {
+    gotValue = true;
+    value = 1;
+    while( digitalRead(4) );
+  }
+  if ( digitalRead(5) && !gotValue ) {
+    gotValue = true;
+    value = 2;
+    while( digitalRead(5) );
+  }
+  if ( digitalRead(6) && !gotValue ) {
+    gotValue = true;
+    value = 3;
+    while( digitalRead(6) );
+  }
+  if ( digitalRead(7) && !gotValue ) {
+    gotValue = true;
+    value = 4;
+    while( digitalRead(7) );
+  }
+  if ( digitalRead(8) && !gotValue ) {
+    gotValue = true;
+    value = 5;
+    while( digitalRead(8) );
+  }
+  if ( digitalRead(9) && !gotValue ) {
+    gotValue = true;
+    value = 6;
+    while( digitalRead(9) );
+  }
+  if ( digitalRead(10) && !gotValue ) {
+    gotValue = true;
+    value = 7;
+    while( digitalRead(10) );
+  }
+  if ( digitalRead(11) && !gotValue ) {
+    gotValue = true;
+    value = 8;
+    while( digitalRead(11) );
+  }
+  return value;
+}
+
+void setup() {
   FastLED.addLeds<NEOPIXEL, LED_DATA_PIN>(leds, NUM_LEDS);
   colorAll( 120, 0, 0 );
 }
 
 void loop() {
   if ( !isWon ) {
-    if (irrecv.decode(&results)) {
-    int in = decodeIR( results.value );
-    enterCode( in );
-    Serial.println("decode");
-    irrecv.resume(); 
-  }
+    int in = read();
+    if ( in  != -1 ) {
+      enterCode( in ); 
+    }
   
   delay(5);
   }
