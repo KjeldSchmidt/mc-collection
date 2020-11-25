@@ -1,50 +1,57 @@
-/*
- * This sketch starts a local wifi server, which serves a web page with two buttons
- * These buttons can be used to pull a pin high or low, controlling, for example, an LED
- */
-
-#include "Arduino.h" // Not neccesary when using the Aruino IDE
 #include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
-WiFiServer server(80);
-
-#define CONTROLLED_PIN D2 // Normal numbrs of arduino pins do not apply for for the ESP8266
+// Replace with your network credentials
+const char* ssid = "SSID";
+const char* password = "PASS";
 
 void setup() {
-    Serial.begin( 9600 );
-    WiFi.mode( WIFI_AP );
-    WiFi.softAP( "D1 Mini", "12345678" ); // Wifi name and password
-    server.begin();
-    IPAddress server_ip = WiFi.softAPIP();
-    Serial.print( "Server operating at IP ");
-    Serial.println( server_ip );
+	Serial.begin(115200);
+	Serial.println("Booting the OTA update!");
+	WiFi.mode(WIFI_STA);
+	WiFi.begin(ssid, password);
+	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
+		Serial.println("Connection Failed! Rebooting...");
+		delay(5000);
+		ESP.restart();
+	}
 
-    pinMode( CONTROLLED_PIN, OUTPUT );
-    digitalWrite( CONTROLLED_PIN, HIGH );
+	// Port defaults to 8266
+	// ArduinoOTA.setPort(8266);
+
+	// Hostname defaults to esp8266-[ChipID]
+	// ArduinoOTA.setHostname("myesp8266");
+
+	// No authentication by default
+	// ArduinoOTA.setPassword((const char *)"123");
+
+	ArduinoOTA.onStart([]() {
+		Serial.println("Start");
+	});
+	ArduinoOTA.onEnd([]() {
+		Serial.println("\nEnd");
+	});
+	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+	});
+	ArduinoOTA.onError([](ota_error_t error) {
+		Serial.printf("Error[%u]: ", error);
+		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+		else if (error == OTA_END_ERROR) Serial.println("End Failed");
+	});
+	ArduinoOTA.begin();
+	Serial.println("Ready");
+	Serial.print("IP address: ");
+	Serial.println(WiFi.localIP());
 }
 
 void loop() {
-    WiFiClient client = server.available(); // Check if a request to the server is made
-    if ( !client ) { // If not, do nothing.
-        return; 
-    }
-    Serial.println( "A device has connected!" );
-
-    // If the requested url contains "HIGH" or "LOW", set the conrolled pin accordingly
-    String request = client.readStringUntil('\r');
-    if ( request.indexOf("HIGH") != -1 ) {
-        digitalWrite( CONTROLLED_PIN, HIGH );
-    } else if ( request.indexOf("LOW") != -1 ) {
-        digitalWrite( CONTROLLED_PIN, LOW );
-    }
-
-    // Output web page content
-    String controlHTML = "HTTP/1.1 200 OK\r\n";
-    controlHTML += "Content-Type: text/html\r\n\r\n";
-    controlHTML += "<!DOCTYPE HTML>\r\n<html>\r\n";
-    controlHTML += "<button onclick=\"location.href = '/HIGH'\">HIGH</button>\r\n";
-    controlHTML += "<button onclick=\"location.href = '/LOW'\">LOW</button>\r\n";
-    controlHTML += "</html>\r\n";
-
-    client.print(controlHTML);
+	ArduinoOTA.handle();
+	Serial.println("Looping like it ain't no thang");
+	delay(1000);
 }
