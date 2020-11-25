@@ -2,8 +2,8 @@
 #include <FastLED.h>
 
 #define RED_PIN A0
-#define GREEN_PIN A3
-#define BLUE_PIN A5
+#define GREEN_PIN A1
+#define BLUE_PIN A4
 
 #define NUM_LEDS 30
 #define DATA_PIN 9
