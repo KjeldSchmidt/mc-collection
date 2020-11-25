@@ -1,0 +1,5 @@
+include_directories(.pio/libdeps)
+
+set(SRC_LIST
+    ${CMAKE_SOURCE_DIR}/src/main.cpp
+)
