@@ -1,0 +1,4 @@
+include_directories("${CMAKE_SOURCE_DIR}/.pio/libdeps/uno/Adafruit GFX Library_ID13")
+include_directories("${CMAKE_SOURCE_DIR}/.pio/libdeps/uno/Adafruit ILI9341_ID1478")
+
+set(SRC_LIST ${CMAKE_SOURCE_DIR}/src/main.cpp)
