@@ -2,9 +2,14 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
+
 #include "FastLED.h"
 
-#define NUM_LEDS 110
+#define MAX_BRIGHTNESS 16
+
+#include "ColorMode.h"
+
+#define NUM_LEDS 109
 #define CHIPSET WS2812
 #define COLOR_ORDER GRB
 
@@ -12,54 +17,53 @@
 
 CRGB leds[NUM_LEDS];
 
-#define BRIGHTNESS 16
-
 // Replace with your network credentials
-const char* ssid = "Heisse Singles in deinem WLAN";
-const char* password = "Dauerwerbesendung";
+const char *ssid = "Heisse Singles in deinem WLAN";
+const char *password = "Dauerwerbesendung";
+
+ColorMode *colorMode = new FireMode{};
 
 void setup() {
-	Serial.begin(115200);
-	Serial.println("Booting the OTA update!");
-	WiFi.mode(WIFI_STA);
-	WiFi.begin(ssid, password);
+	Serial.begin( 115200 );
+	WiFi.mode( WIFI_STA );
+	WiFi.begin( ssid, password );
 
-	while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-		Serial.println("Connection Failed! Rebooting...");
-		delay(5000);
+	while ( WiFi.waitForConnectResult() != WL_CONNECTED ) {
+		Serial.println( "Connection Failed! Rebooting..." );
+		delay( 5000 );
 		ESP.restart();
 	}
 
-	ArduinoOTA.onStart([]() {
-		Serial.println("Start");
-	});
-	ArduinoOTA.onEnd([]() {
-		Serial.println("\nEnd");
-	});
-	ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-		Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-	});
-	ArduinoOTA.onError([](ota_error_t error) {
-		Serial.printf("Error[%u]: ", error);
-		if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-		else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-		else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-		else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-		else if (error == OTA_END_ERROR) Serial.println("End Failed");
-	});
+	ArduinoOTA.onStart( []() {
+		Serial.println( "Start" );
+	} );
+	ArduinoOTA.onEnd( []() {
+		Serial.println( "\nEnd" );
+	} );
+	ArduinoOTA.onProgress( []( unsigned int progress, unsigned int total ) {
+		Serial.printf( "Progress: %u%%\r", ( progress / ( total / 100 )));
+	} );
+	ArduinoOTA.onError( []( ota_error_t error ) {
+		Serial.printf( "Error[%u]: ", error );
+		if ( error == OTA_AUTH_ERROR ) Serial.println( "Auth Failed" );
+		else if ( error == OTA_BEGIN_ERROR ) Serial.println( "Begin Failed" );
+		else if ( error == OTA_CONNECT_ERROR ) Serial.println( "Connect Failed" );
+		else if ( error == OTA_RECEIVE_ERROR ) Serial.println( "Receive Failed" );
+		else if ( error == OTA_END_ERROR ) Serial.println( "End Failed" );
+	} );
 	ArduinoOTA.begin();
-	Serial.println("Ready");
-	Serial.print("IP address: ");
-	Serial.println(WiFi.localIP());
+	Serial.println( "Ready" );
+	Serial.print( "IP address: " );
+	Serial.println( WiFi.localIP());
 
 
-	FastLED.addLeds<WS2812B, DATA_PIN, RGB>(leds, NUM_LEDS);
-	for ( int led = 0; led < NUM_LEDS; led++ ) {
-		leds[led] = CRGB(0, 32, 0);
-	}
-	FastLED.show();
+	CFastLED::addLeds<WS2812B, DATA_PIN, RGB>( leds, NUM_LEDS );
 }
+
 
 void loop() {
 	ArduinoOTA.handle();
+	int delay_time = colorMode->Update( leds, NUM_LEDS );
+	FastLED.show();
+	delay( delay_time );
 }
