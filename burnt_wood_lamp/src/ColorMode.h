@@ -44,23 +44,21 @@ private:
 class GlobalColorTick : public ColorMode {
 public:
 	uint16 Update( CRGB *leds_out, uint8 num_leds ) override {
+		uint8_t r = 8 * ( mode & 4u );
+		uint8_t g = 8 * ( mode & 2u );
+		uint8_t b = 8 * ( mode & 1u );
 		CRGB c{ r, g, b };
 		for ( uint8_t i = 0; i < num_leds; i++ ) {
 			leds_out[ i ] = c;
 		}
-		r ^= b;
-		b ^= r;
-		r ^= b;
-		g ^= b;
-		b ^= g;
-		g ^= b;
+		mode += 1;
+		mode %= 8;
+
 		return 1500;
 	}
 
 private:
-	uint8_t r = 8;
-	uint8_t g = 0;
-	uint8_t b = 0;
+	uint8_t mode = 1;
 };
 
 #endif //BURNT_WOOD_LAMP_COLORMODE_H
