@@ -5,11 +5,13 @@
 
 #include "FastLED.h"
 
-#define MAX_BRIGHTNESS 16
+#define MAX_BRIGHTNESS 72
+#define MAX_BRIGHTNESS_PER_CHANNEL 24
+#define NUM_LEDS 109
 
 #include "ColorMode.h"
 
-#define NUM_LEDS 109
+
 #define CHIPSET WS2812
 #define COLOR_ORDER GRB
 
@@ -21,7 +23,7 @@ CRGB leds[NUM_LEDS];
 const char *ssid = "Heisse Singles in deinem WLAN";
 const char *password = "Dauerwerbesendung";
 
-ColorMode *colorMode = new FireMode{};
+ColorMode *colorMode = new ColorPulse{};
 
 void setup() {
 	Serial.begin( 115200 );
@@ -63,7 +65,7 @@ void setup() {
 
 void loop() {
 	ArduinoOTA.handle();
-	int delay_time = colorMode->Update( leds, NUM_LEDS );
+	int delay_time = colorMode->Update( leds );
 	FastLED.show();
 	delay( delay_time );
 }
