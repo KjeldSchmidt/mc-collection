@@ -8,6 +8,8 @@
 #define MAX_BRIGHTNESS 72
 #define MAX_BRIGHTNESS_PER_CHANNEL 24
 #define NUM_LEDS 109
+#define NUM_LEDS_LOWER 55
+#define NUM_LEDS_UPPER
 
 #include "ColorMode.h"
 
@@ -23,7 +25,7 @@ CRGB leds[NUM_LEDS];
 const char *ssid = "Heisse Singles in deinem WLAN";
 const char *password = "Dauerwerbesendung";
 
-ColorMode *colorMode = new ColorPulse{};
+ColorMode *colorMode = new CityAtSundown{};
 
 void setup() {
 	Serial.begin( 115200 );
@@ -59,7 +61,7 @@ void setup() {
 	Serial.println( WiFi.localIP());
 
 
-	CFastLED::addLeds<WS2812B, DATA_PIN, RGB>( leds, NUM_LEDS );
+	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
 }
 
 
