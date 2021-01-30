@@ -9,25 +9,40 @@
 #define MAX_BRIGHTNESS_PER_CHANNEL 24
 #define NUM_LEDS 109
 #define NUM_LEDS_LOWER 55
-#define NUM_LEDS_UPPER
+#define NUM_LEDS_UPPER 54
 
 #include "ColorMode.h"
-
+#include "LampWebServer.h"
 
 #define CHIPSET WS2812
 #define COLOR_ORDER GRB
 
 #define DATA_PIN D3
 
-CRGB leds[NUM_LEDS];
-
-// Replace with your network credentials
+// Networking
 const char *ssid = "Heisse Singles in deinem WLAN";
 const char *password = "Dauerwerbesendung";
 
+
+// LEDs
+CRGB leds[NUM_LEDS];
+
+uint64_t lastUpdateTime = 0;
+uint64_t delayTime = 0;
+
 ColorMode *colorMode = new CityAtSundown{};
 
+int updateLEDs() {
+	int delay_time = colorMode->Update( leds );
+	FastLED.show();
+	return delay_time;
+}
+
 void setup() {
+	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
+	delayTime = updateLEDs();
+	lastUpdateTime = millis();
+
 	Serial.begin( 115200 );
 	WiFi.mode( WIFI_STA );
 	WiFi.begin( ssid, password );
@@ -60,14 +75,16 @@ void setup() {
 	Serial.print( "IP address: " );
 	Serial.println( WiFi.localIP());
 
-
-	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
+	LampWebServer::initServer();
 }
 
 
 void loop() {
 	ArduinoOTA.handle();
-	int delay_time = colorMode->Update( leds );
-	FastLED.show();
-	delay( delay_time );
+	LampWebServer::handleClient();
+	uint64_t currentMillis = millis();
+	if ( currentMillis - lastUpdateTime >= delayTime ) {
+		delayTime = updateLEDs();
+		lastUpdateTime = currentMillis;
+	}
 }
