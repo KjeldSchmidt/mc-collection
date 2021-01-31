@@ -40,7 +40,7 @@ public:
 				leds_out[ i ] = upper;
 			}
 		}
-		return 0;
+		return 10000;
 	}
 };
 
@@ -104,8 +104,8 @@ public:
 		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
 			leds_out[ i ] = c;
 		}
+		mode %= 7;
 		mode += 1;
-		mode %= 8;
 
 		return 1500;
 	}
@@ -141,6 +141,20 @@ private:
 	constexpr static uint8_t green_waves = 7;
 	constexpr static uint8_t blue_waves = 3;
 	constexpr static float speed_of_light = 0.001; // In arbitrary units
+};
+
+class SingleColor : public ColorMode {
+public:
+	explicit SingleColor( const CRGB &color ) : color( color ) {}
+
+	uint16 Update( CRGB *leds_out ) override {
+		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+			leds_out[ i ] = color;
+		}
+		return 10000;
+	}
+
+	CRGB color;
 };
 
 #include "ArduinoBorealis.h"
