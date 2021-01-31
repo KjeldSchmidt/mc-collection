@@ -10,11 +10,11 @@
 
 class LampWebServer {
 public:
-	explicit LampWebServer( LightManager *lightManager );
+	explicit LampWebServer( LightManager *lightManager, ESP8266WebServer *server );
 
 	void handleClient();
 
-	void initServer( int port = 80 );
+	void initServer();
 
 private:
 	void registerHandlers();
@@ -23,9 +23,9 @@ private:
 
 	void getModes();
 
-	ESP8266WebServer *server;
-
 	LightManager *lightManager;
+
+	ESP8266WebServer *server;
 };
 
 

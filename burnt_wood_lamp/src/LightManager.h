@@ -6,10 +6,21 @@
 #define BURNT_WOOD_LAMP_LIGHTMANAGER_H
 
 
+#include "ColorMode.h"
+
 class LightManager {
 
 public:
-	const char * getModes();
+	LightManager();
+
+	const char *getModes();
+
+	void setMode( const String &newModeName );
+
+	void updateLEDs( CRGB *leds_out );
+
+private:
+	ColorMode *currentColorMode;
 };
 
 

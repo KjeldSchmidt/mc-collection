@@ -6,6 +6,7 @@
 #define BURNT_WOOD_LAMP_COLORMODE_H
 
 #include "FastLED.h"
+#include "ConfigVariables.h"
 
 
 class ColorMode {

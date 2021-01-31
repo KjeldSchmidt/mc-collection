@@ -9,11 +9,8 @@ void LampWebServer::registerHandlers() {
 	server->on( "/getModes", [ & ]() { this->getModes(); } );
 }
 
-void LampWebServer::initServer( int port ) {
-	server = new ESP8266WebServer( port );
-
+void LampWebServer::initServer() {
 	registerHandlers();
-
 	server->begin();
 }
 
@@ -29,6 +26,6 @@ void LampWebServer::getModes() {
 	server->send( 200, "text/plain", lightManager->getModes());
 }
 
-LampWebServer::LampWebServer( LightManager *lightManager ) : lightManager( lightManager ) {
-
-}
+LampWebServer::LampWebServer( LightManager *lightManager, ESP8266WebServer *server )
+		: lightManager( lightManager ),
+		  server( server ) {}

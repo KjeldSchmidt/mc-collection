@@ -5,20 +5,10 @@
 
 #include "FastLED.h"
 
-#define MAX_BRIGHTNESS 72
-#define MAX_BRIGHTNESS_PER_CHANNEL 24
-#define NUM_LEDS 109
-#define NUM_LEDS_LOWER 55
-#define NUM_LEDS_UPPER 54
-
 #include "ColorMode.h"
 #include "LampWebServer.h"
 #include "LightManager.h"
-
-#define CHIPSET WS2812
-#define COLOR_ORDER GRB
-
-#define DATA_PIN D3
+#include "ConfigVariables.h"
 
 // Networking
 const char *ssid = "Heisse Singles in deinem WLAN";
@@ -28,23 +18,13 @@ const char *password = "Dauerwerbesendung";
 // LEDs
 CRGB leds[NUM_LEDS];
 
-uint64_t lastUpdateTime = 0;
-uint64_t delayTime = 0;
-
-LightManager *lightManager = new LightManager{};
-LampWebServer *server = new LampWebServer{ lightManager };
-ColorMode *colorMode = new CityAtSundown{};
-
-int updateLEDs() {
-	int delay_time = colorMode->Update( leds );
-	FastLED.show();
-	return delay_time;
-}
+LightManager lightManager = LightManager{};
+LampWebServer server{ &lightManager, new ESP8266WebServer{ 80 }};
 
 void setup() {
 	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
-	delayTime = updateLEDs();
-	lastUpdateTime = millis();
+
+	lightManager.updateLEDs( leds );
 
 	Serial.begin( 115200 );
 	WiFi.mode( WIFI_STA );
@@ -79,16 +59,12 @@ void setup() {
 	Serial.println( WiFi.localIP());
 	Serial.end();
 
-	server->initServer();
+	server.initServer();
 }
 
 
 void loop() {
 	ArduinoOTA.handle();
-	server->handleClient();
-	uint64_t currentMillis = millis();
-	if ( currentMillis - lastUpdateTime >= delayTime ) {
-		delayTime = updateLEDs();
-		lastUpdateTime = currentMillis;
-	}
+	server.handleClient();
+	lightManager.updateLEDs( leds );
 }
