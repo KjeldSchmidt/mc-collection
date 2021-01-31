@@ -13,6 +13,7 @@
 
 #include "ColorMode.h"
 #include "LampWebServer.h"
+#include "LightManager.h"
 
 #define CHIPSET WS2812
 #define COLOR_ORDER GRB
@@ -30,6 +31,8 @@ CRGB leds[NUM_LEDS];
 uint64_t lastUpdateTime = 0;
 uint64_t delayTime = 0;
 
+LightManager *lightManager = new LightManager{};
+LampWebServer *server = new LampWebServer{ lightManager };
 ColorMode *colorMode = new CityAtSundown{};
 
 int updateLEDs() {
@@ -74,14 +77,15 @@ void setup() {
 	Serial.println( "Ready" );
 	Serial.print( "IP address: " );
 	Serial.println( WiFi.localIP());
+	Serial.end();
 
-	LampWebServer::initServer();
+	server->initServer();
 }
 
 
 void loop() {
 	ArduinoOTA.handle();
-	LampWebServer::handleClient();
+	server->handleClient();
 	uint64_t currentMillis = millis();
 	if ( currentMillis - lastUpdateTime >= delayTime ) {
 		delayTime = updateLEDs();

@@ -4,10 +4,9 @@
 
 #include "LampWebServer.h"
 
-ESP8266WebServer *LampWebServer::server;
-
 void LampWebServer::registerHandlers() {
-	server->on( "/request", LampWebServer::handleGenericRequest );
+	server->on( "/setMode", [ & ]() { this->setMode(); } );
+	server->on( "/getModes", [ & ]() { this->getModes(); } );
 }
 
 void LampWebServer::initServer( int port ) {
@@ -18,10 +17,18 @@ void LampWebServer::initServer( int port ) {
 	server->begin();
 }
 
-void LampWebServer::handleGenericRequest() {
-	server->send( 200, "text/plain", "Request was deemed acceptable" );
+void LampWebServer::setMode() {
+	String newModeName = server->arg( "newMode" );
 }
 
 void LampWebServer::handleClient() {
 	server->handleClient();
+}
+
+void LampWebServer::getModes() {
+	server->send( 200, "text/plain", lightManager->getModes());
+}
+
+LampWebServer::LampWebServer( LightManager *lightManager ) : lightManager( lightManager ) {
+
 }

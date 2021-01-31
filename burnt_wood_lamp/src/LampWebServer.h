@@ -6,21 +6,26 @@
 #define BURNT_WOOD_LAMP_LAMPWEBSERVER_H
 
 #include <ESP8266WebServer.h>
+#include <LightManager.h>
 
 class LampWebServer {
 public:
-	LampWebServer() = default;
+	explicit LampWebServer( LightManager *lightManager );
 
-	static void handleClient();
+	void handleClient();
 
-	static void initServer( int port = 80 );
+	void initServer( int port = 80 );
 
 private:
-	static void registerHandlers();
+	void registerHandlers();
 
-	static void handleGenericRequest();
+	void setMode();
 
-	static ESP8266WebServer *server;
+	void getModes();
+
+	ESP8266WebServer *server;
+
+	LightManager *lightManager;
 };
 
 
