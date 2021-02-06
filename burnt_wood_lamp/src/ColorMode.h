@@ -12,6 +12,12 @@
 class ColorMode {
 public:
 	virtual uint16 Update( CRGB *leds_out ) = 0;
+
+	virtual ~ColorMode() = default;
+
+	constexpr static const char *getName() {
+		return "ColorMode";
+	}
 };
 
 class FireMode : public ColorMode {
@@ -26,6 +32,10 @@ public:
 			leds_out[ i ] = value;
 		}
 		return 50;
+	}
+
+	constexpr static const char *getName() {
+		return "FireMode";
 	}
 };
 
@@ -43,6 +53,10 @@ public:
 		}
 		return 10000;
 	}
+
+	constexpr static const char *getName() {
+		return "City at Sundown";
+	}
 };
 
 class DualColorDrift : public ColorMode {
@@ -57,6 +71,10 @@ public:
 		}
 		drift();
 		return 0;
+	}
+
+	constexpr static const char *getName() {
+		return "DualColorDrift";
 	}
 
 private:
@@ -91,6 +109,10 @@ public:
 		return 100;
 	}
 
+	constexpr static const char *getName() {
+		return "LEDWalk";
+	}
+
 private:
 	int current_index = 0;
 };
@@ -109,6 +131,10 @@ public:
 		mode += 1;
 
 		return 1500;
+	}
+
+	constexpr static const char *getName() {
+		return "Color Tick";
 	}
 
 private:
@@ -130,6 +156,10 @@ public:
 		}
 
 		return 0;
+	}
+
+	constexpr static const char *getName() {
+		return "Color Pulse";
 	}
 
 private:
@@ -155,7 +185,20 @@ public:
 		return 10000;
 	}
 
+	constexpr static const char *getName() {
+		return "SingleColor";
+	}
+
 	CRGB color;
+};
+
+class LightsOut : public SingleColor {
+public:
+	LightsOut() : SingleColor( CRGB::Black ) {}
+
+	constexpr static const char *getName() {
+		return "Lights Out";
+	}
 };
 
 #include "ArduinoBorealis.h"

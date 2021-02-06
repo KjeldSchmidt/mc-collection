@@ -5,7 +5,7 @@
 #include "LightManager.h"
 
 const char *LightManager::getModes() {
-	return "CityAtSundown, GlobalColorTick";
+	return "CityAtSundown, GlobalColorTick, LightsOut";
 }
 
 LightManager::LightManager() {
@@ -39,6 +39,9 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName ) {
 	}
 	if ( modeName == "GlobalColorTick" ) {
 		return new GlobalColorTick{};
+	}
+	if ( modeName == "LightsOut" ) {
+		return new LightsOut{};
 	}
 	return nullptr;
 }
