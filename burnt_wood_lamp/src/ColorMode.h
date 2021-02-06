@@ -55,7 +55,7 @@ public:
 	}
 
 	constexpr static const char *getName() {
-		return "City at Sundown";
+		return "CityAtSundown";
 	}
 };
 
@@ -134,7 +134,7 @@ public:
 	}
 
 	constexpr static const char *getName() {
-		return "Color Tick";
+		return "ColorTick";
 	}
 
 private:
@@ -159,7 +159,7 @@ public:
 	}
 
 	constexpr static const char *getName() {
-		return "Color Pulse";
+		return "ColorPulse";
 	}
 
 private:
@@ -197,7 +197,18 @@ public:
 	LightsOut() : SingleColor( CRGB::Black ) {}
 
 	constexpr static const char *getName() {
-		return "Lights Out";
+		return "LightsOut";
+	}
+};
+
+class WakeUp : public SingleColor {
+public:
+	WakeUp() : SingleColor(
+			CRGB( MAX_BRIGHTNESS_PER_CHANNEL, MAX_BRIGHTNESS_PER_CHANNEL, MAX_BRIGHTNESS_PER_CHANNEL )
+	) {}
+
+	constexpr static const char *getName() {
+		return "WakeUp";
 	}
 };
 
