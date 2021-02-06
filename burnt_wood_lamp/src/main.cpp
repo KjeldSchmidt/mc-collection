@@ -21,6 +21,8 @@ CRGB leds[NUM_LEDS];
 LightManager lightManager = LightManager{};
 LampWebServer server{ &lightManager, new ESP8266WebServer{ 80 }};
 
+bool unhandledExceptionCaught = false;
+
 void setup() {
 	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
 
@@ -64,7 +66,13 @@ void setup() {
 
 
 void loop() {
+	if ( !unhandledExceptionCaught ) {
+		try {
+			server.handleClient();
+			lightManager.updateLEDs( leds );
+		} catch ( std::exception &e ) {
+			unhandledExceptionCaught = true;
+		}
+	}
 	ArduinoOTA.handle();
-	server.handleClient();
-	lightManager.updateLEDs( leds );
 }
