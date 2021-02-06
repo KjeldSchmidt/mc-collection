@@ -16,6 +16,12 @@ void LampWebServer::initServer() {
 
 void LampWebServer::setMode() {
 	String newModeName = server->arg( "newMode" );
+	bool success = lightManager->setMode( newModeName );
+	if ( success ) {
+		server->send( 200 );
+	} else {
+		server->send( 400 );
+	}
 }
 
 void LampWebServer::handleClient() {
@@ -23,7 +29,7 @@ void LampWebServer::handleClient() {
 }
 
 void LampWebServer::getModes() {
-	server->send( 200, "text/plain", lightManager->getModes());
+	server->send( 200, "text/plain", LightManager::getModes());
 }
 
 LampWebServer::LampWebServer( LightManager *lightManager, ESP8266WebServer *server )

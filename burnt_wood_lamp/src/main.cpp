@@ -18,15 +18,16 @@ const char *password = "Dauerwerbesendung";
 // LEDs
 CRGB leds[NUM_LEDS];
 
-LightManager lightManager = LightManager{};
-LampWebServer server{ &lightManager, new ESP8266WebServer{ 80 }};
+LightManager *lightManager = new LightManager{};
+ESP8266WebServer *server = new ESP8266WebServer{ 80 };
+LampWebServer *lampServer = new LampWebServer{ lightManager, server };
 
 bool unhandledExceptionCaught = false;
 
 void setup() {
 	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
 
-	lightManager.updateLEDs( leds );
+	lightManager->updateLEDs( leds );
 
 	Serial.begin( 115200 );
 	WiFi.mode( WIFI_STA );
@@ -61,17 +62,20 @@ void setup() {
 	Serial.println( WiFi.localIP());
 	Serial.end();
 
-	server.initServer();
+	lampServer->initServer();
 }
 
 
 void loop() {
 	if ( !unhandledExceptionCaught ) {
 		try {
-			server.handleClient();
-			lightManager.updateLEDs( leds );
+			lampServer->handleClient();
+			lightManager->updateLEDs( leds );
 		} catch ( std::exception &e ) {
 			unhandledExceptionCaught = true;
+			delete lampServer;
+			delete server;
+			delete lightManager;
 		}
 	}
 	ArduinoOTA.handle();

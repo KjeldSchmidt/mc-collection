@@ -12,8 +12,14 @@ LightManager::LightManager() {
 	currentColorMode = new CityAtSundown{};
 }
 
-void LightManager::setMode( const String &newModeName ) {
+bool LightManager::setMode( const String &newModeName ) {
+	ColorMode *newMode = decodeColorModeString( newModeName );
 
+	if ( newMode == nullptr ) return false;
+
+	delete currentColorMode;
+	currentColorMode = newMode;
+	return true;
 }
 
 void LightManager::updateLEDs( CRGB *leds_out ) {
@@ -26,3 +32,19 @@ void LightManager::updateLEDs( CRGB *leds_out ) {
 		FastLED.show();
 	}
 }
+
+ColorMode *LightManager::decodeColorModeString( const String &modeName ) {
+	if ( modeName == "CityAtSundown" ) {
+		return new CityAtSundown{};
+	}
+	if ( modeName == "GlobalColorTick" ) {
+		return new GlobalColorTick{};
+	}
+	return nullptr;
+}
+
+LightManager::~LightManager() {
+	delete currentColorMode;
+}
+
+

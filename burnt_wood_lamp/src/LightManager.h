@@ -13,13 +13,17 @@ class LightManager {
 public:
 	LightManager();
 
-	const char *getModes();
+	static const char *getModes();
 
-	void setMode( const String &newModeName );
+	bool setMode( const String &newModeName );
 
 	void updateLEDs( CRGB *leds_out );
 
+	virtual ~LightManager();
+
 private:
+	static ColorMode *decodeColorModeString( const String &modeName );
+
 	ColorMode *currentColorMode;
 };
 
