@@ -11,13 +11,13 @@
 class LightManager {
 
 public:
-	LightManager();
+	LightManager( CRGB *leds_out );
 
 	static const char *getModes();
 
 	bool setMode( const String &newModeName );
 
-	void updateLEDs( CRGB *leds_out );
+	void updateLEDs();
 
 	virtual ~LightManager();
 
@@ -25,6 +25,10 @@ private:
 	static ColorMode *decodeColorModeString( const String &modeName );
 
 	ColorMode *currentColorMode;
+
+	uint64_t delayTime = 0;
+	uint64_t lastUpdateTime = 0;
+	CRGB *leds_out;
 };
 
 

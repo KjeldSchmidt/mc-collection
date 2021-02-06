@@ -18,7 +18,7 @@ const char *password = "Dauerwerbesendung";
 // LEDs
 CRGB leds[NUM_LEDS];
 
-LightManager *lightManager = new LightManager{};
+LightManager *lightManager = new LightManager{ leds };
 ESP8266WebServer *server = new ESP8266WebServer{ 80 };
 LampWebServer *lampServer = new LampWebServer{ lightManager, server };
 
@@ -27,7 +27,7 @@ bool unhandledExceptionCaught = false;
 void setup() {
 	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
 
-	lightManager->updateLEDs( leds );
+	lightManager->updateLEDs();
 
 	Serial.begin( 115200 );
 	WiFi.mode( WIFI_STA );
@@ -70,7 +70,7 @@ void loop() {
 	if ( !unhandledExceptionCaught ) {
 		try {
 			lampServer->handleClient();
-			lightManager->updateLEDs( leds );
+			lightManager->updateLEDs();
 		} catch ( std::exception &e ) {
 			unhandledExceptionCaught = true;
 			delete lampServer;
