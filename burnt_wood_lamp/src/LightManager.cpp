@@ -4,12 +4,8 @@
 
 #include "LightManager.h"
 
-const char *LightManager::getModes() {
-	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp";
-}
-
 LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
-	currentColorMode = new CityAtSundown{};
+	currentColorMode = new Pacifica{};
 }
 
 bool LightManager::setMode( const String &newModeName ) {
@@ -32,6 +28,10 @@ void LightManager::updateLEDs() {
 	}
 }
 
+const char *LightManager::getModes() {
+	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica";
+}
+
 ColorMode *LightManager::decodeColorModeString( const String &modeName ) {
 	if ( modeName == "CityAtSundown" ) {
 		return new CityAtSundown{};
@@ -42,9 +42,11 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName ) {
 	if ( modeName == "LightsOut" ) {
 		return new LightsOut{};
 	}
-
 	if ( modeName == "WakeUp" ) {
 		return new WakeUp{};
+	}
+	if ( modeName == "Pacifica" ) {
+		return new Pacifica{};
 	}
 	return nullptr;
 }
