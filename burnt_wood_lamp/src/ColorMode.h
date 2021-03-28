@@ -39,26 +39,6 @@ public:
 	}
 };
 
-class CityAtSundown : public ColorMode {
-public:
-	uint16 Update( CRGB *leds_out ) override {
-		CRGB upper = CRGB( MAX_BRIGHTNESS - 3, 3, 0 );
-		CRGB lower = CRGB( MAX_BRIGHTNESS - 18, 18, 0 );
-		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
-			if ( i < NUM_LEDS_LOWER ) {
-				leds_out[ i ] = lower;
-			} else {
-				leds_out[ i ] = upper;
-			}
-		}
-		return 10000;
-	}
-
-	constexpr static const char *getName() {
-		return "CityAtSundown";
-	}
-};
-
 class DualColorDrift : public ColorMode {
 public:
 	uint16 Update( CRGB *leds_out ) override {
@@ -186,10 +166,37 @@ public:
 	}
 
 	constexpr static const char *getName() {
-		return "SingleColor";
+		return "SingleColor( Color )";
 	}
 
+private:
 	CRGB color;
+};
+
+class DualColor : public ColorMode {
+public:
+	DualColor( const CRGB &colorUpper, const CRGB &colorLower )
+			: color_upper( colorUpper ),
+			  color_lower( colorLower ) {}
+
+	uint16 Update( CRGB *leds_out ) override {
+		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+			if ( i < NUM_LEDS_LOWER ) {
+				leds_out[ i ] = color_lower;
+			} else {
+				leds_out[ i ] = color_upper;
+			}
+		}
+		return 10000;
+	}
+
+	constexpr static const char *getName() {
+		return "DualColor( Color, Color )";
+	}
+
+private:
+	CRGB color_upper;
+	CRGB color_lower;
 };
 
 class LightsOut : public SingleColor {
@@ -209,6 +216,18 @@ public:
 
 	constexpr static const char *getName() {
 		return "WakeUp";
+	}
+};
+
+class CityAtSundown : public DualColor {
+public:
+	CityAtSundown() : DualColor(
+			CRGB( MAX_BRIGHTNESS - 3, 3, 0 ),
+			CRGB( MAX_BRIGHTNESS - 18, 18, 0 )
+	) {}
+
+	constexpr static const char *getName() {
+		return "CityAtSundown";
 	}
 };
 
