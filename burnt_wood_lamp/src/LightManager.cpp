@@ -19,6 +19,17 @@ bool LightManager::setMode( const String &newModeName ) {
 	return true;
 }
 
+bool LightManager::setMode( const String &newModeName, uint32_t color ) {
+	ColorMode *newMode = decodeColorModeString( newModeName, color );
+
+	if ( newMode == nullptr ) return false;
+
+	delete currentColorMode;
+	currentColorMode = newMode;
+	delayTime = 0;
+	return true;
+}
+
 void LightManager::updateLEDs() {
 	uint64_t currentMillis = millis();
 	if ( currentMillis - lastUpdateTime >= delayTime ) {
@@ -48,6 +59,14 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName ) {
 	if ( modeName == "Pacifica" ) {
 		return new Pacifica{};
 	}
+	return nullptr;
+}
+
+ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color ) {
+	if ( modeName == "SingleColor" ) {
+		return new SingleColor{ color };
+	}
+
 	return nullptr;
 }
 

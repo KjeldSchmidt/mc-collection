@@ -15,8 +15,25 @@ void LampWebServer::initServer() {
 }
 
 void LampWebServer::setMode() {
+	bool success = false;
 	String newModeName = server->arg( "newMode" );
-	bool success = lightManager->setMode( newModeName );
+
+	if ( server->args() == 1 ) {
+		success = lightManager->setMode( newModeName );
+	} else if ( newModeName == "SingleColor" ) {
+		if ( !server->hasArg( "color" )) {
+			server->send( 400, "text/plain", "SingleColor(color) requires a hex arg" );
+			return;
+		}
+		const char *color_string = server->arg( "color" ).c_str();
+		uint32_t color = strtol( color_string, nullptr, 16 );
+		if ( color == 0 ) {
+			server->send( 400, "text/plain", "Color has parsed to 0" );
+			return;
+		}
+		success = lightManager->setMode( newModeName, color );
+	}
+
 	if ( success ) {
 		server->send( 200 );
 	} else {
