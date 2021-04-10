@@ -8,19 +8,8 @@ LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
 	currentColorMode = new Pacifica{};
 }
 
-bool LightManager::setMode( const String &newModeName ) {
-	ColorMode *newMode = decodeColorModeString( newModeName );
-
-	if ( newMode == nullptr ) return false;
-
-	delete currentColorMode;
-	currentColorMode = newMode;
-	delayTime = 0;
-	return true;
-}
-
-bool LightManager::setMode( const String &newModeName, uint32_t color ) {
-	ColorMode *newMode = decodeColorModeString( newModeName, color );
+bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t color2 ) {
+	ColorMode *newMode = decodeColorModeString( newModeName, color1, color2 );
 
 	if ( newMode == nullptr ) return false;
 
@@ -40,10 +29,10 @@ void LightManager::updateLEDs() {
 }
 
 const char *LightManager::getModes() {
-	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica";
+	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorPulse, SingleColor(Color)";
 }
 
-ColorMode *LightManager::decodeColorModeString( const String &modeName ) {
+ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t ) {
 	if ( modeName == "CityAtSundown" ) {
 		return new CityAtSundown{};
 	}
@@ -59,12 +48,12 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName ) {
 	if ( modeName == "Pacifica" ) {
 		return new Pacifica{};
 	}
-	return nullptr;
-}
+	if ( modeName == "ColorPulse" ) {
+		return new ColorPulse{};
+	}
 
-ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color ) {
 	if ( modeName == "SingleColor" ) {
-		return new SingleColor{ color };
+		return new SingleColor{ color1 };
 	}
 
 	return nullptr;
@@ -73,5 +62,3 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t
 LightManager::~LightManager() {
 	delete currentColorMode;
 }
-
-
