@@ -32,7 +32,7 @@ const char *LightManager::getModes() {
 	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorPulse, SingleColor(Color)";
 }
 
-ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t ) {
+ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2 ) {
 	if ( modeName == "CityAtSundown" ) {
 		return new CityAtSundown{};
 	}
@@ -54,6 +54,10 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t
 
 	if ( modeName == "SingleColor" ) {
 		return new SingleColor{ color1 };
+	}
+
+	if ( modeName == "DualColor" ) {
+		return new DualColor{ color1, color2 };
 	}
 
 	return nullptr;

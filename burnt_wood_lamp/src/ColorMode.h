@@ -219,6 +219,25 @@ public:
 	}
 };
 
+class DiscoStrobo : public ColorMode {
+public:
+	uint16 Update( CRGB *leds_out ) override {
+		static bool on = true;
+		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+			if ( on ) {
+				leds_out[ i ] = CRGB( MAX_BRIGHTNESS_PER_CHANNEL, MAX_BRIGHTNESS_PER_CHANNEL,
+				                      MAX_BRIGHTNESS_PER_CHANNEL );
+			} else {
+				leds_out[ i ] = CRGB::Black;
+			}
+		}
+
+		on = !on;
+
+		return 50;
+	}
+};
+
 class CityAtSundown : public DualColor {
 public:
 	CityAtSundown() : DualColor(
@@ -307,8 +326,9 @@ public:
 private:
 
 	// Add one layer of waves into the led array
-	static void pacifica_one_layer( CRGB *leds_out, CRGBPalette16 &p, uint16_t cistart, uint16_t wavescale, uint8_t bri,
-	                                uint16_t ioff ) {
+	static void
+	pacifica_one_layer( CRGB *leds_out, CRGBPalette16 &p, uint16_t cistart, uint16_t wavescale, uint8_t bri,
+	                    uint16_t ioff ) {
 		uint16_t ci = cistart;
 		uint16_t waveangle = ioff;
 		uint16_t wavescale_half = ( wavescale / 2 ) + 20;
@@ -360,6 +380,7 @@ private:
 			{ 0x000208, 0x00030E, 0x000514, 0x00061A, 0x000820, 0x000927, 0x000B2D, 0x000C33,
 			  0x000E39, 0x001040, 0x001450, 0x001860, 0x001C70, 0x002080, 0x1040BF, 0x2060FF };
 };
+
 
 #include "ArduinoBorealis.h"
 
