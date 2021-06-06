@@ -17,6 +17,7 @@ void LampWebServer::initServer() {
 void LampWebServer::setMode() {
 	bool success = false;
 	String newModeName = server->arg( "newMode" );
+	server->sendHeader( "Access-Control-Allow-Origin", "*" );
 
 	if ( server->args() == 1 ) {
 		success = lightManager->setMode( newModeName );
@@ -27,7 +28,7 @@ void LampWebServer::setMode() {
 		}
 		const char *color_string = server->arg( "color" ).c_str();
 		uint32_t color = strtol( color_string, nullptr, 16 );
-		if ( color == 0 && strcmp( color_string, "0x000000" ) == 0 ) {
+		if ( color == 0 && ( strcmp( color_string, "0x000000" ) != 0 )) {
 			server->send( 400, "text/plain", "Color has parsed to 0" );
 			return;
 		}

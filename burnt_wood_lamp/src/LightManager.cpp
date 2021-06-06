@@ -5,7 +5,7 @@
 #include "LightManager.h"
 
 LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
-	currentColorMode = new Pacifica{};
+	currentColorMode = new WakeUp{};
 }
 
 bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t color2 ) {
@@ -29,7 +29,7 @@ void LightManager::updateLEDs() {
 }
 
 const char *LightManager::getModes() {
-	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorPulse, SingleColor(Color)";
+	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorPulse, DiscoStrobo, SingleColor(Color)";
 }
 
 ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2 ) {
@@ -51,9 +51,11 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t
 	if ( modeName == "ColorPulse" ) {
 		return new ColorPulse{};
 	}
-
 	if ( modeName == "SingleColor" ) {
 		return new SingleColor{ color1 };
+	}
+	if ( modeName == "DiscoStrobo" ) {
+		return new DiscoStrobo{};
 	}
 
 	if ( modeName == "DualColor" ) {
