@@ -31,6 +31,8 @@ void setup() {
 
 	lightManager->updateLEDs();
 
+	randomSeed( analogRead( A0 ));
+
 	Serial.begin( 115200 );
 	WiFi.mode( WIFI_STA );
 	WiFi.begin( ssid, password );

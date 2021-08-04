@@ -42,26 +42,26 @@ public:
 class LauraPartyMode : public ColorMode {
 public:
 	uint16 Update( CRGB *leds_out ) override {
-		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
-			static bool Start = false;
-			if ( Start == false ) {
+		static bool Start = false;
+		if ( Start == false ) {
+			for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
 				CRGB value = CRGB( 255, 13, 0 );
 				leds_out[ i ] = value;
 				if ( i == NUM_LEDS - 1 ) Start = true;
 			}
 		}
-		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
-			CRGB value = leds_out[ i - 1 ];
-			long r1 = random( 40 );
-			long r2 = random( 40 );
-			long r3 = random( 40 );
-			long r4 = random( 40 );
-			value -= CRGB( r4, r4, r4 );
-			value += CRGB( r1, r2, r3 );
-			leds_out[ i ] = value;
+		long i = random( NUM_LEDS );
+		CRGB value = leds_out[ i - 1 ];
+		long r1 = random( 50 );
+		long r2 = random( 50 );
+		long r3 = random( 50 );
+		long r4 = random( 50 );
+		long r5 = random( 50 );
+		long r6 = random( 50 );
+		value = CRGB( value.red + r1 - r4, value.green + r2 - r5, value.blue + r3 - r6 );
+		leds_out[ i ] = value;
 
-		}
-		return 1000;
+		return 1;
 	}
 
 	constexpr static const char *getName() {
