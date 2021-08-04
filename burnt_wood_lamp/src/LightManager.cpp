@@ -5,7 +5,7 @@
 #include "LightManager.h"
 
 LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
-	currentColorMode = new WakeUp{};
+	currentColorMode = new LauraPartyMode{};
 }
 
 bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t color2 ) {
