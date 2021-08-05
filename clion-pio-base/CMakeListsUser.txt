@@ -1,0 +1,1 @@
+include_directories(C:/Users/KjeldSchmidt/.platformio/packages/framework-arduino-avr/cores/arduino)
