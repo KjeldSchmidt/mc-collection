@@ -50,7 +50,7 @@ public:
 				if ( i == NUM_LEDS - 1 ) Start = true;
 			}
 		}
-		long i = random( NUM_LEDS );
+		long i = random( 1, NUM_LEDS );
 		CRGB value = leds_out[ i - 1 ];
 		long r1 = random( 50 );
 		long r2 = random( 50 );
