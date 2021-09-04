@@ -29,7 +29,7 @@ void LightManager::updateLEDs() {
 }
 
 const char *LightManager::getModes() {
-	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorPulse, DiscoStrobo, SingleColor(Color), LaurasPartymodus(Beta)";
+	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorPulse, DiscoStrobo, SingleColor(Color), LaurasPartymodus(Beta), KjeldPartyModus";
 }
 
 ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2 ) {
@@ -57,9 +57,11 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t
 	if ( modeName == "DiscoStrobo" ) {
 		return new DiscoStrobo{};
 	}
-
 	if ( modeName == "LaurasPartymodus(Beta)" ) {
 		return new LauraPartyMode{};
+	}
+	if ( modeName == "KjeldPartyModus" ) {
+		return new KjeldPartyMode{};
 	}
 
 	if ( modeName == "DualColor" ) {
