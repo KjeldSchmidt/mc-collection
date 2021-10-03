@@ -1,115 +1,49 @@
 #include <Arduino.h>
-// Pin to which an 8 Ohm speaker is connected (use a 150 - 220 Ohm resistor)
-#define speakerPin D8
+#include <i2s.h>
+#include <i2s_reg.h>
+#define write_sample(data) while (i2s_write_sample_nb(data)==0)
 
-// Tempo (beats per minute)
-#define bpm 96
-
-// Gap between notes. This is expressed as percentage of time between 2 beats.
-#define noteGapPercentage 10
-
-/*
- * 2D array containing the notes to be played
- * A note comprises of two values:
- *  * The first value determines the frequency of the note.
- *    This is expressed as the number of a key on an 88-key piano (1 - 88)
- *    A number outside this range can be used (e.g. 0) to create a gap
- *  * The second value determines the duration:
- *    * 1 represents a whole note (spans 4 beats)
- *    * 2 represents a half note (spans 2 beats)
- *    * 4 represents a quarter note (spans 1 beat)
- *    * 8 represents an eighth note (spans 0.5 beat)
- *      etc.
- */
-uint8_t notes[][2] = {
-		{35,4}, {35,4}, {42,4}, {42,4}, {44,4}, {44,4}, {42,2},
-		{40,4}, {40,4}, {39,4}, {39,4}, {37,4}, {37,4}, {35,2},
-		{42,4}, {42,4}, {40,4}, {40,4}, {39,4}, {39,4}, {37,2},
-		{42,4}, {42,4}, {40,4}, {40,4}, {39,4}, {39,4}, {37,2},
-		{35,4}, {35,4}, {42,4}, {42,4}, {44,4}, {44,4}, {42,2},
-		{40,4}, {40,4}, {39,4}, {39,4}, {37,4}, {37,4}, {35,2}
+uint32_t fakePwm[] = {
+		0,420980412,837906552,1246763195,1643612826,2024633568,2386155981,2724698408,3037000499,3320054616,3571134792,3787822988,3968032377,4110027446,4212440703,4274285854,4294967295,4274285854,4212440703,4110027446,3968032377,3787822988,3571134792,3320054616,3037000499,2724698408,2386155981,2024633568,1643612826,1246763195,837906552,420980412
 };
 
-// Time between two beats in microseconds (equal to length of a quarter note)
-#define beatDuration (60.0 / bpm) * 1000000L
+uint32_t fakePwm2[] = {
+		0, 837906552, 1643612826, 2386155981, 3037000499, 3571134792, 3968032377, 4212440703, 4294967295, 4212440703, 3968032377, 3571134792, 3037000499, 2386155981, 1643612826, 837906552
+};
 
-// Time of the gap between two notes in microseconds
-#define noteGap beatDuration * (noteGapPercentage / 100.0)
+void outputDMA(void)
+{
+	i2s_begin();
+	i2s_set_rate(48000); // Rate set to 50,000 lots of 32-bits per sec
 
-/*
- * Delay for a number of microseconds. This is necessary because
- * delayMicroseconds() has an upper limit.
- *
- * us - The delay in microseconds
- */
-void wait(long us) {
-	// First delay for the number of whole milliseconds using delay()
-	delay(us / 1000);
-	// Then delay for the remainder of microseconds using delayMicroseconds()
-	delayMicroseconds(us % 1000);
-}
+	uint8_t state=0;
+	for (int i=0; i<65536; i++) //(0 - (2^16-1))
+	{
 
-/*
- * Returns the period for a key or zero for key numbers outside the range of 1 -
- * 88.
- *
- * keyNumber - The key number (1 - 88)
- */
-long getPeriodForKey(uint8_t keyNumber) {
-	// If the key is between 1 and 88
-	if(keyNumber >= 1 && keyNumber <= 88) {
-		// Return the period (one second divided by the frequency of the key)
-		return 1000000L / (pow(2.0, (keyNumber - 49.0) / 12.0) * 440.0);
+		state = (i >> 12)%2; // Toggle every 4096 double-words
+		if (state)
+			write_sample(fakePwm[i%32]);
+		else
+			write_sample(fakePwm2[i%16]);
+
+		if ((i % 1000) == 0) yield(); // without this get WDT resets
 	}
-
-	// Otherwise return zero
-	return 0;
+	i2s_end();
 }
 
-/*
- * Plays an individual note.
- *
- * keyNumber - The key number (1 - 88)
- * noteType - The note type (1, 2, 4, 8, etc.)
- */
-void playNote(uint8_t keyNumber, uint8_t noteType) {
-	long halfPeriod = getPeriodForKey(keyNumber) / 2;
-	long noteDuration = beatDuration * (4.0 / noteType);
-	long elapsed = 0;
+void setup()
+{
+	//Serial.begin(115200);
 
-	// While we have a note to play
-	while(halfPeriod > 0 && elapsed < (noteDuration - noteGap)) {
-		// Set speakerPin high for half of the period
-		digitalWrite(speakerPin, HIGH);
-		wait(halfPeriod);
+	pinMode(3, OUTPUT); // Override default Serial initiation
+	digitalWrite(3,0); // Set pin low
+}
 
-		// Set speakerPin low for half of the period
-		digitalWrite(speakerPin, LOW);
-		wait(halfPeriod);
-
-		// Update the amount of time that has elapsed
-		elapsed += halfPeriod * 2;
+void loop()
+{
+	static unsigned long last = millis();
+	if (millis() - last > 1000) {
+		outputDMA();
+		last = millis();
 	}
-
-	/*
-	 * Gap between notes. Calculated using 'elapsed' to minimise timing errors
-	 * and ensure that the correct gap occurs whenever getPeriodForKey() returns
-	 * zero.
-	 */
-	wait(noteDuration - elapsed);
-}
-
-void setup() {
-	// Set the speakerPin as an output
-	pinMode(speakerPin, OUTPUT);
-
-	// Iterate over the notes array
-	for(auto & note : notes) {
-		// pass the key number and note type
-		playNote(note[0], note[1]);
-	}
-}
-
-void loop() {
-	// Not used. Music will play once.
 }
