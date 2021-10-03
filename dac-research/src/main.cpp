@@ -1,6 +1,6 @@
 #include <Arduino.h>
 // Pin to which an 8 Ohm speaker is connected (use a 150 - 220 Ohm resistor)
-#define speakerPin 12
+#define speakerPin D8
 
 // Tempo (beats per minute)
 #define bpm 96
