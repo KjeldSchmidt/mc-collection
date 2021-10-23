@@ -1,1 +1,2 @@
 include_directories("${CMAKE_CURRENT_LIST_DIR}/lib/ESP32-A2DP-1.4/src")
+include_directories("${CMAKE_CURRENT_LIST_DIR}.pio/libdeps/wemos_d1_mini32/MD_YX5300/src")
