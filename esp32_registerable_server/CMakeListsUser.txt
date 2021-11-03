@@ -1,0 +1,1 @@
+include_directories("${CMAKE_CURRENT_LIST_DIR}/lib/ESP32-A2DP-1.4/src")
