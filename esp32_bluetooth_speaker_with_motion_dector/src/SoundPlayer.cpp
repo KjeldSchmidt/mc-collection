@@ -9,7 +9,7 @@ uint16_t SoundPlayer::SERIAL_BPS = MD_YX5300::SERIAL_BPS;
 SoundPlayer::SoundPlayer( Stream &stream ) : mp3( MD_YX5300( stream )) {}
 
 
-void SoundPlayer::play_folder( uint8_t folder ) {
+void SoundPlayer::play_current_folder( uint8_t folder ) {
 	current_folder_index = folder;
 	current_file_index = 1;
 	play_current();
@@ -34,9 +34,17 @@ bool SoundPlayer::check() {
 
 void SoundPlayer::handle_message() {
 	const MD_YX5300::cbData *status = mp3.getStatus();
-	Serial.print(F( "STS_??? 0x" ));
-	Serial.println( status->code, HEX );
-	switch ( status->code ) {
+	MD_YX5300::status_t status_code = status->code;
+
+	Serial.println( status_code, HEX );
+	Serial.println( status->data );
+
+	if ( status_code != MD_YX5300::STS_ACK_OK ) {
+		Serial.print(F( "STS_0x" ));
+		Serial.println( status_code, HEX );
+	}
+
+	switch ( status_code ) {
 		case MD_YX5300::STS_FILE_END:
 		case MD_YX5300::STS_VERSION: // Boldly attempt to ignore errors.
 			Serial.println( "Song done" );
@@ -44,6 +52,10 @@ void SoundPlayer::handle_message() {
 			break;
 		case MD_YX5300::STS_ERR_FILE:
 			Serial.println( "File Not Found" );
+			break;
+		case MD_YX5300::STS_FLDR_FILES:
+			Serial.println( status->data );
+			files_in_current_folder = status->data;
 			break;
 		default:
 			break;
@@ -53,4 +65,23 @@ void SoundPlayer::handle_message() {
 
 void SoundPlayer::play_current() {
 	mp3.playSpecific( current_folder_index, current_file_index );
+}
+
+void SoundPlayer::play_random_from_folder( uint8_t folder ) {
+	current_folder_index = folder;
+	mp3.queryFolderFiles( folder );
+	while ( !mp3.check()) {
+		Serial.println( "waiting to receive ack" );
+	}
+	const MD_YX5300::cbData *status = mp3.getStatus();
+	if ( status->code != 0x41 ) {
+		Serial.println( "Expected ACK, got something else" );
+	}
+	Serial.println( status->code, HEX );
+	Serial.println( status->data );
+	files_in_current_folder = status->data;
+	Serial.print( "Folder Index, Files Count: " );
+	Serial.print( folder );
+	Serial.print( ", " );
+	Serial.println( files_in_current_folder );
 }

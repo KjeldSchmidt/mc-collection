@@ -7,6 +7,7 @@
 #endif
 
 #include "SoundPlayer.h"
+#include "RadioServer.h"
 
 #define MOTION_DETECTION_PIN 17
 #define SD_PLAYER_TX 18
@@ -15,6 +16,7 @@
 BluetoothA2DPSink a2dp_sink;
 SoftwareSerial sdPlayerControlStream{ SD_PLAYER_RX, SD_PLAYER_TX };
 SoundPlayer player{ sdPlayerControlStream };
+RadioServer radioServer;
 
 volatile bool play = false;
 
@@ -42,11 +44,9 @@ void loop() {
 	delay( 2000 );
 	player.check();
 
-	Serial.println( "Looping" );
-
 	if ( play ) {
-		player.play_folder( 3 );
 		play = false;
-		Serial.println( "Playing in loop" );
+
+		player.play_random_from_folder( 2 );
 	}
 }

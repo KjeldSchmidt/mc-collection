@@ -12,7 +12,9 @@ class SoundPlayer {
 public:
 	SoundPlayer( Stream &stream );
 
-	void play_folder( uint8_t folder );
+	void play_current_folder( uint8_t folder );
+
+	void play_random_from_folder( uint8_t folder );
 
 	void begin();
 
@@ -30,6 +32,7 @@ private:
 	MD_YX5300 mp3;
 	uint8_t current_file_index = 0;
 	uint8_t current_folder_index = 0;
+	uint16_t files_in_current_folder = 0;
 };
 
 
