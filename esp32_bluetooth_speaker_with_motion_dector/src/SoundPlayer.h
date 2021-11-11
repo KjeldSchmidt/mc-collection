@@ -6,7 +6,7 @@
 #define VINYL_RECORD_PLAYER_SOUND_PLAYER_H
 
 #include <Arduino.h>
-#include "../.pio/libdeps/wemos_d1_mini32/MD_YX5300/src/MD_YX5300.h"
+#include "MD_YX5300.h"
 
 class SoundPlayer {
 public:

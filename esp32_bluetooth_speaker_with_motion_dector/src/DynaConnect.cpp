@@ -1,13 +1,8 @@
-//
-// Created by kjeld on 03/11/2021.
-//
+#include "DynaConnect.h"
 
-#include "RadioServer.h"
-
-static const char AUX_TIMEZONE[]
-		PROGMEM = R"(
+static const char AUX_TIMEZONE[] PROGMEM = R"(
 {
-  "title": "TimeZone",
+  "title": "TimeZoneChanged",
   "uri": "/timezone",
   "menu": true,
   "element": [
@@ -42,7 +37,7 @@ static const char AUX_TIMEZONE[]
 typedef struct {
 	const char *zone;
 	const char *ntpServer;
-	int8_t time_zone_offset;
+	int8_t tzoff;
 } Timezone_t;
 
 static const Timezone_t TZ[] = {
@@ -72,15 +67,10 @@ static const Timezone_t TZ[] = {
 		{ "Pacific/Samoa",        "oceania.pool.ntp.org",       -11 }
 };
 
-RadioServer::RadioServer() {
-	Config.autoReconnect = true;
-	Config.hostName = "esp32-01";
+DynaConnect::DynaConnect(WebServer &Server, AutoConnect &Portal) : Server(Server), Portal(Portal) {
+    Timezone.load( AUX_TIMEZONE );
 
-	Portal.config( Config );
-
-	Timezone.load( AUX_TIMEZONE );
-
-	AutoConnectSelect &tz = Timezone[ "timezone" ].as<AutoConnectSelect>();
+    AutoConnectSelect &tz = Timezone[ "timezone" ].as<AutoConnectSelect>();
 	for ( uint8_t n = 0; n < sizeof( TZ ) / sizeof( Timezone_t ); n++ ) {
 		tz.add( String( TZ[ n ].zone ));
 	}
@@ -88,8 +78,11 @@ RadioServer::RadioServer() {
 	Portal.join( { Timezone } );        // Register aux. page
 
 	// Behavior a root path of ESP8266WebServer.
-	Server.on( "/", [ & ]() { this->rootPage(); } );
-	Server.on( "/start", [ & ]() { this->startPage(); } );
+	Server.on( "/", [&] (){ this->root_page(); } );
+	Server.on( "/start", [&] (){ this->start_page(); } );   // Set NTP server trigger handler
+
+	Serial.println( "Creating portal and trying to connect..." );
+	// Establish a connection with an autoReconnect option.
 	if ( Portal.begin()) {
 		Serial.println( "WiFi connected: " + WiFi.localIP().toString());
 #if defined(ARDUINO_ARCH_ESP8266)
@@ -97,10 +90,10 @@ RadioServer::RadioServer() {
 #elif defined(ARDUINO_ARCH_ESP32)
 		Serial.println( WiFi.getHostname());
 #endif
-	}
+    }
 }
 
-void RadioServer::rootPage() {
+void DynaConnect::root_page() {
 	String content =
 			"<html>"
 			"<head>"
@@ -131,17 +124,17 @@ void RadioServer::rootPage() {
 	Server.send( 200, "text/html", content );
 }
 
-void RadioServer::startPage() {
+void DynaConnect::start_page() {
 	// Retrieve the value of AutoConnectElement with arg function of WebServer class.
 	// Values are accessible with the element name.
 	String tz = Server.arg( "timezone" );
 
-	for ( const auto &n : TZ ) {
-		String tzName = String( n.zone );
+	for ( uint8_t n = 0; n < sizeof( TZ ) / sizeof( Timezone_t ); n++ ) {
+		String tzName = String( TZ[ n ].zone );
 		if ( tz.equalsIgnoreCase( tzName )) {
-			configTime( n.time_zone_offset * 3600, 0, n.ntpServer );
+			configTime( TZ[ n ].tzoff * 3600, 0, TZ[ n ].ntpServer );
 			Serial.println( "Time zone: " + tz );
-			Serial.println( "ntp server: " + String( n.ntpServer ));
+			Serial.println( "ntp server: " + String( TZ[ n ].ntpServer ));
 			break;
 		}
 	}
@@ -154,6 +147,7 @@ void RadioServer::startPage() {
 	Server.client().stop();
 }
 
-void RadioServer::handleClient() {
-	Portal.handleClient();
+
+void DynaConnect::handle_client() {
+    Portal.handleClient();
 }
