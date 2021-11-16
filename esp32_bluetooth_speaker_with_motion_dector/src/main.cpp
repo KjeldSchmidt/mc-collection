@@ -62,17 +62,12 @@ void setup() {
 void loop() {
 	player.check();
 	dynaConnect->handle_client();
-	Serial.println(".");
-
 
 	if ( motion_triggered ) {
 		motion_triggered = false;
 
-		struct tm *tm;
-		time_t t;
-
-		t = time( NULL );
-		tm = localtime( &t );
+		time_t t = time( NULL );;
+		struct tm *tm = localtime( &t );
 
 		if ( tm->tm_hour < 7 or tm->tm_hour >= 22 ) {
 			handle_night_event();
