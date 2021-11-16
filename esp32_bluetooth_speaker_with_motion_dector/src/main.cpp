@@ -20,17 +20,27 @@ SoftwareSerial sdPlayerControlStream{ SD_PLAYER_RX, SD_PLAYER_TX };
 SoundPlayer player{ sdPlayerControlStream };
 DynaConnect *dynaConnect;
 
-volatile bool play = false;
+volatile bool motion_triggered = false;
 
 void motion_detected() {
-	Serial.println( "Motion detected!" );
-	play = true;
+	motion_triggered = true;
+}
+
+void handle_night_event() {
+	Serial.println("handle_night_event");
+}
+
+void handle_day_event() {
+	Serial.println("Handle day event!");
+	uint8_t random_value = random( 200 );
+	player.play_random_from_folder( random_value = 0 ? 2 : 1 );
 }
 
 void setup() {
-	delay( 1000 );
+	delay( 2000 );
 	Serial.begin( 9600 );
 
+	randomSeed(analogRead(A0));
 	sdPlayerControlStream.begin( SoundPlayer::SERIAL_BPS );
 	player.begin();
 	
@@ -52,12 +62,23 @@ void setup() {
 void loop() {
 	player.check();
 	dynaConnect->handle_client();
+	Serial.println(".");
 
 
-	if ( play ) {
-		play = false;
+	if ( motion_triggered ) {
+		motion_triggered = false;
 
-		player.play_random_from_folder( 2 );
+		struct tm *tm;
+		time_t t;
+
+		t = time( NULL );
+		tm = localtime( &t );
+
+		if ( tm->tm_hour < 7 or tm->tm_hour >= 22 ) {
+			handle_night_event();
+		} else {
+			handle_day_event();
+		}
 	}
 
 	delay( 1000 );
