@@ -69,19 +69,17 @@ void SoundPlayer::play_current() {
 
 void SoundPlayer::play_random_from_folder( uint8_t folder ) {
 	current_folder_index = folder;
+	
+	Serial.println("query folder file count");
 	mp3.queryFolderFiles( folder );
-	while ( !mp3.check()) {
-		Serial.println( "waiting to receive ack" );
-	}
+	while ( !mp3.check()) {}
+
 	const MD_YX5300::cbData *status = mp3.getStatus();
 	if ( status->code != 0x41 ) {
 		Serial.println( "Expected ACK, got something else" );
 	}
-	Serial.println( status->code, HEX );
-	Serial.println( status->data );
+	Serial.println("Got folder file count");
 	files_in_current_folder = status->data;
-	Serial.print( "Folder Index, Files Count: " );
-	Serial.print( folder );
-	Serial.print( ", " );
-	Serial.println( files_in_current_folder );
+	current_file_index = random(files_in_current_folder) + 1;
+	play_current();
 }
