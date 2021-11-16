@@ -2,7 +2,7 @@
 
 static const char AUX_TIMEZONE[] PROGMEM = R"(
 {
-  "title": "TimeZoneChanged",
+  "title": "Timezone",
   "uri": "/timezone",
   "menu": true,
   "element": [
@@ -69,27 +69,23 @@ static const Timezone_t TZ[] = {
 
 DynaConnect::DynaConnect(WebServer &Server, AutoConnect &Portal) : Server(Server), Portal(Portal) {
     Timezone.load( AUX_TIMEZONE );
+	load_time_zone_index();
 
     AutoConnectSelect &tz = Timezone[ "timezone" ].as<AutoConnectSelect>();
 	for ( uint8_t n = 0; n < sizeof( TZ ) / sizeof( Timezone_t ); n++ ) {
 		tz.add( String( TZ[ n ].zone ));
 	}
 
-	Portal.join( { Timezone } );        // Register aux. page
+	Portal.join( { Timezone } );
 
-	// Behavior a root path of ESP8266WebServer.
 	Server.on( "/", [&] (){ this->root_page(); } );
-	Server.on( "/start", [&] (){ this->start_page(); } );   // Set NTP server trigger handler
+	Server.on( "/start", [&] (){ this->start_page(); } );
 
 	Serial.println( "Creating portal and trying to connect..." );
-	// Establish a connection with an autoReconnect option.
+
 	if ( Portal.begin()) {
 		Serial.println( "WiFi connected: " + WiFi.localIP().toString());
-#if defined(ARDUINO_ARCH_ESP8266)
-		Serial.println(WiFi.hostname());
-#elif defined(ARDUINO_ARCH_ESP32)
 		Serial.println( WiFi.getHostname());
-#endif
     }
 }
 
@@ -116,10 +112,18 @@ void DynaConnect::root_page() {
 
 	t = time( NULL );
 	tm = localtime( &t );
-	sprintf( dateTime, "%04d/%02d/%02d(%s) %02d:%02d:%02d.",
-	         tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
-	         wd[ tm->tm_wday ],
-	         tm->tm_hour, tm->tm_min, tm->tm_sec );
+	sprintf( 
+		dateTime,
+		"%04d/%02d/%02d(%s) %02d:%02d:%02d.",
+		tm->tm_year + 1900,
+		tm->tm_mon + 1,
+		tm->tm_mday,
+		wd[ tm->tm_wday ],
+		tm->tm_hour,
+		tm->tm_min,
+		tm->tm_sec 
+	);
+
 	content.replace( "{{DateTime}}", String( dateTime ));
 	Server.send( 200, "text/html", content );
 }
@@ -132,7 +136,7 @@ void DynaConnect::start_page() {
 	for ( uint8_t n = 0; n < sizeof( TZ ) / sizeof( Timezone_t ); n++ ) {
 		String tzName = String( TZ[ n ].zone );
 		if ( tz.equalsIgnoreCase( tzName )) {
-			configTime( TZ[ n ].tzoff * 3600, 0, TZ[ n ].ntpServer );
+			store_time_zone_index( n );
 			Serial.println( "Time zone: " + tz );
 			Serial.println( "ntp server: " + String( TZ[ n ].ntpServer ));
 			break;
@@ -150,4 +154,26 @@ void DynaConnect::start_page() {
 
 void DynaConnect::handle_client() {
     Portal.handleClient();
+}
+
+void DynaConnect::store_time_zone_index( uint8_t new_time_zone_index ) {
+	if ( time_zone_index == new_time_zone_index ) return;
+
+	EEPROM.begin(1);
+
+	configTime( TZ[ new_time_zone_index ].tzoff * 3600, 0, TZ[ new_time_zone_index ].ntpServer );
+	EEPROM.write(0, new_time_zone_index);
+
+	EEPROM.end();
+}
+
+void DynaConnect::load_time_zone_index() {
+	EEPROM.begin(1);
+
+	delay(3000);
+	time_zone_index = EEPROM.read( 0 );
+	if (time_zone_index > 23) time_zone_index = 1;
+	configTime( TZ[ time_zone_index ].tzoff * 3600, 0, TZ[ time_zone_index ].ntpServer );
+
+	EEPROM.end();
 }

@@ -6,7 +6,7 @@
 #include <EEPROM.h>
 #include "AutoConnect.h"
 
-#define EEPROM_SIZE 128
+#define EEPROM_SIZE 1
 
 class DynaConnect {
 public:
@@ -19,10 +19,16 @@ private:
 
     void start_page();
 
+    void store_time_zone_index(uint8_t timezone_index);
+
+    void load_time_zone_index();
+
     WebServer &Server;
     AutoConnect &Portal;
     AutoConnectConfig Config;
     AutoConnectAux Timezone;
+
+    uint8_t time_zone_index;
 };
 
 #endif // DYNA_CONNECT_H
