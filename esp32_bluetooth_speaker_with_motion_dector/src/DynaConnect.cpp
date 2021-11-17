@@ -99,9 +99,9 @@ void DynaConnect::root_page() {
 			"</script>"
 			"</head>"
 			"<body>"
-			"<h2 align=\"center\" style=\"color:blue;margin:20px;\">Hello, world</h2>"
+			"<h2 align=\"center\" style=\"color:blue;margin:20px;\">Dschungelmusik</h2>"
 			"<h3 align=\"center\" style=\"color:gray;margin:10px;\">{{DateTime}}</h3>"
-			"<p style=\"text-align:center;\">Reload the page to update the time.</p>"
+			"<p style=\"text-align:center;\">Click the gear to enter settings</p>"
 			"<p></p><p style=\"padding-top:15px;text-align:center\">" AUTOCONNECT_LINK( COG_24 ) "</p>"
 			"</body>"
 			"</html>";
@@ -114,7 +114,7 @@ void DynaConnect::root_page() {
 	tm = localtime( &t );
 	sprintf( 
 		dateTime,
-		"%04d/%02d/%02d(%s) %02d:%02d:%02d.",
+		"%04d/%02d/%02d (%s) %02d:%02d:%02d",
 		tm->tm_year + 1900,
 		tm->tm_mon + 1,
 		tm->tm_mday,
@@ -169,11 +169,12 @@ void DynaConnect::store_time_zone_index( uint8_t new_time_zone_index ) {
 
 void DynaConnect::load_time_zone_index() {
 	EEPROM.begin(1);
-
-	delay(3000);
 	time_zone_index = EEPROM.read( 0 );
-	if (time_zone_index > 23) time_zone_index = 1;
-	configTime( TZ[ time_zone_index ].tzoff * 3600, 0, TZ[ time_zone_index ].ntpServer );
-
 	EEPROM.end();
+
+	if (time_zone_index > 23) {
+		time_zone_index = 1;
+	} 
+
+	configTime( TZ[ time_zone_index ].tzoff * 3600, 0, TZ[ time_zone_index ].ntpServer );
 }
