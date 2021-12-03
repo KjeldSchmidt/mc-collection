@@ -125,60 +125,121 @@ private:
 	unsigned long time = 0;
 };
 
-static const CRGB stroboColors[7] = {
-            CRGB(255,   0,   0),
-            CRGB(  0, 255,   0),
-            CRGB(  0,   0, 255),
-            CRGB(255, 255,   0),
-            CRGB(255,   0, 255),
-            CRGB(  0, 255, 255),
-            CRGB(255, 255, 255)
-};
+
 class TimExistentialDreadMode : public ColorMode {
+// MODES
+enum Modes {strobo, river};
+struct ModeConfig {
+    Modes mode;
+    uint16 minRuntime;
+    uint16 maxRuntime;
+    uint16 minDelay;
+    uint16 maxDelay;
+};
 
     // NOTES
     // LED-Order
     // Bottom Left -> Bottom Right -> Top Right -> Top left
 
-    // INIT
+    // MODES
     private: bool init = false;
-    private: CRGB startColor = CRGB(133,73, 0);
-    private: uint16 startDelay = 1000;
+    private: static const uint8 modeConfigsCount = 2;
+    private: ModeConfig modeConfigs[modeConfigsCount];
+    private: ModeConfig currentModeConfig;
+    private: uint16 modeTimePassedInMs = 0;
+    private: uint16 modeTimeMax = -1;
 
-    // COLORS
-    // Strobo
-    private: CRGB stroboOn = CRGB(255, 255, 255);
+    // Part of TimExistentialDreadMode
+    // MODE: STROBO
+    // Colors
     private: CRGB stroboOff = CRGB(20, 20, 25);
     private: static const uint8 stroboColorCount = 7;
-    private: uint8 lastStroboColorIndex = -1;
-
-    // TIMING
-    private: uint16 stroboDelayMin = 10;
-    private: uint16 stroboDelayMax = 100;
+    private: CRGB stroboColors[stroboColorCount] {};
+    // Caching
     private: bool stroboToggle = false;
+    private: uint8 lastStroboColorIndex = -1;
+    //MODE: RIVER
+    // Colors
+    private: CRGB riverColor = CRGB(25, 255, 25);
+
 
     // Override Update
     // Return (uint 16) -> Delay in MilliSeconds
     public: uint16 Update(CRGB *leds_out) override {
+        // Init
+        Init();
+
+        // Update ModeConfig
+        UpdateModeConfig();
+
         // Set Colors
-        SetStroboColor(leds_out);
+        if(currentModeConfig.mode == strobo){
+            SetStroboColor(leds_out);
+        }
+        else if(currentModeConfig.mode == river){
+            SetRiverColor(leds_out);
+        }
 
         // Set Random Delay
-        const uint8 stroboDelay = random16(stroboDelayMin, stroboDelayMax);
+        const uint8 delay = random16(currentModeConfig.minDelay, currentModeConfig.maxDelay);
+        modeTimePassedInMs += delay;
 
-        return stroboDelay;
+        return delay;
     }
 
-    private: uint16 Init(CRGB *leds_out) {
+    private: void Init() {
+        if(init){
+            return;
+        }
+
         init = true;
-        SetSingleColor(leds_out, startColor);
-        return startDelay;
+        // Init Modes
+        modeConfigs[0] = {strobo, 0, 5000, 10, 30};
+        modeConfigs[1] = {river, 0, 6000, 200, 200};
+
+        // Init Strobo
+        stroboColors[0] = CRGB(255,   0,   0);
+        stroboColors[1] = CRGB(  0, 255,   0);
+        stroboColors[2] = CRGB(  0,   0, 255);
+        stroboColors[3] = CRGB(255, 255,   0);
+        stroboColors[4] = CRGB(255,   0, 255);
+        stroboColors[5] = CRGB(  0, 255, 255);
+        stroboColors[6] = CRGB(255, 255, 255);
+
+        // Set initial Mode
+        SetModeConfig(modeConfigs[0]);
+    };
+    private: void UpdateModeConfig() {
+        if(modeTimePassedInMs < modeTimeMax){
+            return;
+        }
+
+        // Set Next Mode randomly
+        ModeConfig newModeConfig = currentModeConfig;
+        while(newModeConfig.mode == currentModeConfig.mode){
+            newModeConfig = modeConfigs[random8(0, modeConfigsCount)];
+        }
+        SetModeConfig(newModeConfig);
+    }
+
+    private: void SetModeConfig(ModeConfig modeConfig){
+        // Reset time passed
+        modeTimePassedInMs = 0;
+
+        // Set max play time
+        modeTimeMax = random16(modeConfig.minRuntime, modeConfig.maxRuntime);
+        currentModeConfig = modeConfig;
     }
 
     private: void SetSingleColor( CRGB *leds_out, CRGB color ) {
         for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
             leds_out[i] = color;
         }
+    }
+
+    private: void SetRiverColor( CRGB *leds_out ) {
+        // Set Color
+        SetSingleColor(leds_out, riverColor);
     }
 
     private: void SetStroboColor( CRGB *leds_out ) {
