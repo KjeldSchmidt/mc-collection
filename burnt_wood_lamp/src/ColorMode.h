@@ -125,6 +125,83 @@ private:
 	unsigned long time = 0;
 };
 
+static const CRGB stroboColors[7] = {
+            CRGB(255,   0,   0),
+            CRGB(  0, 255,   0),
+            CRGB(  0,   0, 255),
+            CRGB(255, 255,   0),
+            CRGB(255,   0, 255),
+            CRGB(  0, 255, 255),
+            CRGB(255, 255, 255)
+};
+class TimExistentialDreadMode : public ColorMode {
+
+    // NOTES
+    // LED-Order
+    // Bottom Left -> Bottom Right -> Top Right -> Top left
+
+    // INIT
+    private: bool init = false;
+    private: CRGB startColor = CRGB(133,73, 0);
+    private: uint16 startDelay = 1000;
+
+    // COLORS
+    // Strobo
+    private: CRGB stroboOn = CRGB(255, 255, 255);
+    private: CRGB stroboOff = CRGB(20, 20, 25);
+    private: static const uint8 stroboColorCount = 7;
+    private: uint8 lastStroboColorIndex = -1;
+
+    // TIMING
+    private: uint16 stroboDelayMin = 10;
+    private: uint16 stroboDelayMax = 100;
+    private: bool stroboToggle = false;
+
+    // Override Update
+    // Return (uint 16) -> Delay in MilliSeconds
+    public: uint16 Update(CRGB *leds_out) override {
+        // Set Colors
+        SetStroboColor(leds_out);
+
+        // Set Random Delay
+        const uint8 stroboDelay = random16(stroboDelayMin, stroboDelayMax);
+
+        return stroboDelay;
+    }
+
+    private: uint16 Init(CRGB *leds_out) {
+        init = true;
+        SetSingleColor(leds_out, startColor);
+        return startDelay;
+    }
+
+    private: void SetSingleColor( CRGB *leds_out, CRGB color ) {
+        for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+            leds_out[i] = color;
+        }
+    }
+
+    private: void SetStroboColor( CRGB *leds_out ) {
+        // Toggle
+        stroboToggle = !stroboToggle;
+        // Get Color
+        CRGB color = stroboToggle ? GetStroboColor() : stroboOff;
+        // Set Color
+        SetSingleColor(leds_out, color);
+    }
+
+    private: CRGB GetStroboColor(){
+        uint8 newStroboColorIndex = lastStroboColorIndex;
+        while(newStroboColorIndex == lastStroboColorIndex){
+            newStroboColorIndex = random8(0, stroboColorCount);
+        }
+
+        lastStroboColorIndex = newStroboColorIndex;
+        CRGB stroboColor = stroboColors[newStroboColorIndex];
+        return stroboColor;
+    }
+};
+
 class DualColorDrift : public ColorMode {
 public:
 	uint16 Update( CRGB *leds_out ) override {
