@@ -128,13 +128,19 @@ private:
 
 class TimExistentialDreadMode : public ColorMode {
 // MODES
-enum Modes {strobo, river};
+enum Modes {strobo, ambient, river};
 struct ModeConfig {
     Modes mode;
     uint16 minRuntime;
     uint16 maxRuntime;
     uint16 minDelay;
     uint16 maxDelay;
+    bool init;
+    //void updateColors(CRGB *leds_out);
+    void set_function(std::function<void(CRGB*)> in) {
+        SetColors = in;
+    }
+    std::function<void(CRGB*)> SetColors;
 };
 
     // NOTES
@@ -143,7 +149,7 @@ struct ModeConfig {
 
     // MODES
     private: bool init = false;
-    private: static const uint8 modeConfigsCount = 2;
+    private: static const uint8 modeConfigsCount = 3;
     private: ModeConfig modeConfigs[modeConfigsCount];
     private: ModeConfig currentModeConfig;
     private: uint16 modeTimePassedInMs = 0;
@@ -158,10 +164,15 @@ struct ModeConfig {
     // Caching
     private: bool stroboToggle = false;
     private: uint8 lastStroboColorIndex = -1;
-    //MODE: RIVER
-    // Colors
-    private: CRGB riverColor = CRGB(25, 255, 25);
 
+    // MODE: SINGLE
+    // Colors
+
+    // MODE: RIVER
+    // Colors
+
+    // MODE: AMBIENT
+    // Colors
 
     // Override Update
     // Return (uint 16) -> Delay in MilliSeconds
@@ -173,12 +184,7 @@ struct ModeConfig {
         UpdateModeConfig();
 
         // Set Colors
-        if(currentModeConfig.mode == strobo){
-            SetStroboColor(leds_out);
-        }
-        else if(currentModeConfig.mode == river){
-            SetRiverColor(leds_out);
-        }
+        currentModeConfig.SetColors(leds_out);
 
         // Set Random Delay
         const uint8 delay = random16(currentModeConfig.minDelay, currentModeConfig.maxDelay);
@@ -194,8 +200,38 @@ struct ModeConfig {
 
         init = true;
         // Init Modes
-        modeConfigs[0] = {strobo, 0, 5000, 10, 30};
-        modeConfigs[1] = {river, 0, 6000, 200, 200};
+        // STROBO
+        modeConfigs[0] = {
+                strobo,
+                   500,
+                  5000,
+                    10,
+                    30,
+                    false,
+        };
+        modeConfigs[0].set_function([ & ](CRGB* leds_out) { this->SetStroboColor(leds_out); });
+
+        // AMBIENT
+        modeConfigs[1] = {
+                   ambient,
+                     2000,
+                     6000,
+                      200,
+                      200,
+                      false,
+        };
+        modeConfigs[1].set_function([ & ](CRGB* leds_out) { this->SetAmbientColor(leds_out); });
+
+        // RIVER
+        modeConfigs[2] = {
+                river,
+                10000,
+                20000,
+                10,
+                10,
+                false,
+        };
+        modeConfigs[2].set_function([ & ](CRGB* leds_out) { this->SetRiverColor(leds_out); });
 
         // Init Strobo
         stroboColors[0] = CRGB(255,   0,   0);
@@ -225,6 +261,7 @@ struct ModeConfig {
     private: void SetModeConfig(ModeConfig modeConfig){
         // Reset time passed
         modeTimePassedInMs = 0;
+        modeConfig.init = false;
 
         // Set max play time
         modeTimeMax = random16(modeConfig.minRuntime, modeConfig.maxRuntime);
@@ -237,11 +274,6 @@ struct ModeConfig {
         }
     }
 
-    private: void SetRiverColor( CRGB *leds_out ) {
-        // Set Color
-        SetSingleColor(leds_out, riverColor);
-    }
-
     private: void SetStroboColor( CRGB *leds_out ) {
         // Toggle
         stroboToggle = !stroboToggle;
@@ -249,6 +281,43 @@ struct ModeConfig {
         CRGB color = stroboToggle ? GetStroboColor() : stroboOff;
         // Set Color
         SetSingleColor(leds_out, color);
+    }
+
+    private: void SetAmbientColor( CRGB *leds_out ) {
+        // Determine Color
+        const CRGB color = CRGB(
+                random(0, 255),
+                random(0, 255),
+                random(0, 255)
+        );
+
+        // Set Color
+        SetSingleColor(leds_out, color);
+    }
+
+    private: void SetRiverColor( CRGB *leds_out ) {
+        // Init
+        if(!currentModeConfig.init){
+            currentModeConfig.init = true;
+
+            // Generate Colors
+            const uint8 min = 255 - NUM_LEDS;
+            for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+                const uint8 val = random8(min, 255);
+                CRGB color = CRGB( 0, 0, val);
+                leds_out[ i ] = color;
+            }
+        }
+
+        ShiftColors(leds_out);
+    }
+
+    private: void ShiftColors(CRGB *leds_out){
+        leds_out[0] = leds_out[NUM_LEDS];
+        for ( uint8_t i = 1; i < NUM_LEDS; i++ ) {
+            const uint8 color= leds_out[i-1];
+            leds_out[ i ] = color;
+        }
     }
 
     private: CRGB GetStroboColor(){
