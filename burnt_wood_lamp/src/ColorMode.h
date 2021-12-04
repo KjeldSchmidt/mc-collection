@@ -303,8 +303,8 @@ struct ModeConfig {
             // Generate Colors
             const uint8 min = 255 - NUM_LEDS;
             for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
-                const uint8 val = random8(min, 255);
-                CRGB color = CRGB( 0, 0, val);
+                const uint8 val = min+i;
+                CRGB color = CRGB(0, 0, val);
                 leds_out[ i ] = color;
             }
         }
@@ -313,10 +313,9 @@ struct ModeConfig {
     }
 
     private: void ShiftColors(CRGB *leds_out){
-        leds_out[0] = leds_out[NUM_LEDS];
+        leds_out[0] = leds_out[NUM_LEDS-1];
         for ( uint8_t i = 1; i < NUM_LEDS; i++ ) {
-            const uint8 color= leds_out[i-1];
-            leds_out[ i ] = color;
+            leds_out[ i ] = leds_out[i-1];
         }
     }
 
