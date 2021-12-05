@@ -128,14 +128,15 @@ private:
 
 class TimExistentialDreadMode : public ColorMode {
 // MODES
-enum Modes {strobo, ambient, river};
+enum Modes {strobo, ambient, river, switchsort};
 struct ModeConfig {
     Modes mode;
-    uint16 minRuntime;
-    uint16 maxRuntime;
+    uint minRuntime;
+    uint maxRuntime;
     uint16 minDelay;
     uint16 maxDelay;
     bool init;
+    uint8 chanceInPercent;
     //void updateColors(CRGB *leds_out);
     void set_function(std::function<void(CRGB*)> in) {
         SetColors = in;
@@ -149,7 +150,7 @@ struct ModeConfig {
 
     // MODES
     private: bool init = false;
-    private: static const uint8 modeConfigsCount = 3;
+    private: static const uint8 modeConfigsCount = 4;
     private: ModeConfig modeConfigs[modeConfigsCount];
     private: ModeConfig currentModeConfig;
     private: uint16 modeTimePassedInMs = 0;
@@ -203,35 +204,52 @@ struct ModeConfig {
         // STROBO
         modeConfigs[0] = {
                 strobo,
-                   500,
-                  5000,
-                    10,
-                    30,
-                    false,
+                   500, // minRuntime
+                  5000, // maxRuntime
+                    10, // minDelay
+                    30, // maxDelay
+                    false, //init
+                    10, // chanceInPercent
         };
         modeConfigs[0].set_function([ & ](CRGB* leds_out) { this->SetStroboColor(leds_out); });
 
         // AMBIENT
         modeConfigs[1] = {
                    ambient,
-                     2000,
-                     6000,
-                      200,
-                      200,
-                      false,
+                     2000, // minRuntime
+                     6000, // maxRuntime
+                      200, // minDelay
+                      200, // maxDelay
+                      false, // init
+                      100, // chanceInPercent
         };
         modeConfigs[1].set_function([ & ](CRGB* leds_out) { this->SetAmbientColor(leds_out); });
 
         // RIVER
         modeConfigs[2] = {
                 river,
-                10000,
-                20000,
-                10,
-                10,
-                false,
+                10000,// minRuntime
+                20000,// maxRuntime
+                   10,// minDelay
+                   10,// maxDelay
+                false, // Init
+                  100, // chanceInPercent
+
         };
         modeConfigs[2].set_function([ & ](CRGB* leds_out) { this->SetRiverColor(leds_out); });
+
+        // SWITCH-SORT
+        modeConfigs[3] = {
+                switchsort,
+                100000,// minRuntime
+                100000,// maxRuntime
+                    100,// minDelay
+                    100,// maxDelay
+                false, // Init
+                   100, // chanceInPercent
+
+        };
+        modeConfigs[3].set_function([ & ](CRGB* leds_out) { this->SetSwitchSortColor(leds_out); });
 
         // Init Strobo
         stroboColors[0] = CRGB(255,   0,   0);
@@ -252,10 +270,9 @@ struct ModeConfig {
 
         // Set Next Mode randomly
         ModeConfig newModeConfig = currentModeConfig;
-        while(newModeConfig.mode == currentModeConfig.mode){
-            newModeConfig = modeConfigs[random8(0, modeConfigsCount)];
-        }
-        SetModeConfig(newModeConfig);
+        uint8 random100 = random8(0, 100);
+
+        SetModeConfig(modeConfigs[3]);
     }
 
     private: void SetModeConfig(ModeConfig modeConfig){
@@ -302,9 +319,23 @@ struct ModeConfig {
 
             // Generate Colors
             const uint8 min = 255 - NUM_LEDS;
+
+            // Use random Color Combination
+            uint8 rMultiplier = random(2);
+            uint8 gMultiplier = random(2);
+            uint8 bMultiplier = random(2);
+            // But at least one color
+            if(rMultiplier == 0 && gMultiplier == 0 && bMultiplier == 0){
+                bMultiplier = 1;
+            }
+
             for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
                 const uint8 val = min+i;
-                CRGB color = CRGB(0, 0, val);
+                CRGB color = CRGB(
+                        rMultiplier * val,
+                        gMultiplier * val,
+                        bMultiplier * val
+                        );
                 leds_out[ i ] = color;
             }
         }
@@ -312,10 +343,67 @@ struct ModeConfig {
         ShiftColors(leds_out);
     }
 
+    private: void SetSwitchSortColor( CRGB *leds_out ) {
+        // Init
+        if(!currentModeConfig.init){
+            currentModeConfig.init = true;
+
+            // Generate Colors
+            for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+                leds_out[ i ] = GetRandomColor();
+            }
+        }
+
+        SwitchSortColors(leds_out);
+    }
+
+    private: uint8 lastIndex = 1;
+    private: uint8 colorIndex = 0;
+    private: void SwitchSortColors(CRGB *leds_out) {
+
+        for ( uint8_t i = lastIndex; i < NUM_LEDS; i++ ) {
+            CRGB val1 = leds_out[i-1];
+            CRGB val2 = leds_out[i];
+
+            // No need to switch
+            if(val1.r <= val2.r ) {
+                continue;
+            }
+            else {
+
+                // Switch, set lastIndex & wait for next step
+                leds_out[i - 1] = CRGB(val2.r, val1.g, val1.b);// val2;
+                leds_out[i] = CRGB(val1.r, val2.g, val2.b);
+                lastIndex = i + 1;
+            }
+        }
+
+        // Completed without switching so current color is sorted -> do next color
+        colorIndex++;
+        lastIndex = 1;
+
+        // If all 3 colors have completed end mode
+        if(colorIndex > 2){
+            modeTimePassedInMs += 1000000;
+        }
+    }
+
+    private: CRGB GetRandomColor() {
+        const CRGB color = CRGB(
+                random(0, 255),
+                random(0, 255),
+                random(0, 255)
+        );
+        return color;
+    }
+
     private: void ShiftColors(CRGB *leds_out){
-        leds_out[0] = leds_out[NUM_LEDS-1];
-        for ( uint8_t i = 1; i < NUM_LEDS; i++ ) {
-            leds_out[ i ] = leds_out[i-1];
+        // leds_out[0] = CRGB(133,33,72);
+        CRGB nextColor = leds_out[NUM_LEDS-1];
+        for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+            CRGB currentColor = nextColor;
+            nextColor = leds_out[i];
+            leds_out[ i ] = currentColor;
         }
     }
 
