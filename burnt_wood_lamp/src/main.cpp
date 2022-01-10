@@ -24,9 +24,13 @@ LampWebServer *lampServer = new LampWebServer{ lightManager, server };
 
 bool unhandledExceptionCaught = false;
 
+void turnOffBuiltInLed() {
+    pinMode( D4, OUTPUT );
+    digitalWrite( D4, HIGH );
+}
+
 void setup() {
-	pinMode( D4, OUTPUT );
-	digitalWrite( D4, HIGH );
+    turnOffBuiltInLed();
 	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
 
 	lightManager->updateLEDs();
