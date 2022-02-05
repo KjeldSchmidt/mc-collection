@@ -24,6 +24,7 @@ volatile bool motion_triggered = false;
 
 void motion_detected() {
 	motion_triggered = true;
+	Serial.println("MD");
 }
 
 void handle_night_event() {
@@ -33,7 +34,8 @@ void handle_night_event() {
 void handle_day_event() {
 	Serial.println("Handle day event!");
 	uint8_t random_value = random( 200 );
-	player.play_random_from_folder( random_value = 0 ? 2 : 1 );
+	Serial.println(random_value);
+	player.play_random_from_folder( random_value == 0 ? 2 : 1 );
 }
 
 void setup() {
@@ -44,7 +46,7 @@ void setup() {
 	sdPlayerControlStream.begin( SoundPlayer::SERIAL_BPS );
 	player.begin();
 	
-	pinMode( MOTION_DETECTION_PIN, INPUT );
+	pinMode( MOTION_DETECTION_PIN, INPUT_PULLDOWN );
 	attachInterrupt(
 			digitalPinToInterrupt( MOTION_DETECTION_PIN ),
 			motion_detected,
@@ -63,7 +65,9 @@ void loop() {
 	player.check();
 	dynaConnect->handle_client();
 
+	Serial.println("checking for motion...");
 	if ( motion_triggered ) {
+		Serial.println("Found motion!");
 		motion_triggered = false;
 
 		time_t t = time( NULL );;

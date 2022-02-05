@@ -48,7 +48,6 @@ void SoundPlayer::handle_message() {
 		case MD_YX5300::STS_FILE_END:
 		case MD_YX5300::STS_VERSION: // Boldly attempt to ignore errors.
 			Serial.println( "Song done" );
-			play_next();
 			break;
 		case MD_YX5300::STS_ERR_FILE:
 			Serial.println( "File Not Found" );
@@ -64,22 +63,28 @@ void SoundPlayer::handle_message() {
 }
 
 void SoundPlayer::play_current() {
+	Serial.print("Now playing song ");
+	Serial.println(current_file_index);
 	mp3.playSpecific( current_folder_index, current_file_index );
 }
 
 void SoundPlayer::play_random_from_folder( uint8_t folder ) {
 	current_folder_index = folder;
 	
-	Serial.println("query folder file count");
-	mp3.queryFolderFiles( folder );
-	while ( !mp3.check()) {}
-
-	const MD_YX5300::cbData *status = mp3.getStatus();
-	if ( status->code != 0x41 ) {
-		Serial.println( "Expected ACK, got something else" );
+	Serial.print("Playing random file from folder ");
+	Serial.println(folder);
+	if (folder == 1) {
+		files_in_current_folder = 25;
+	} else if (folder == 2)
+	{
+		files_in_current_folder = 1;
+	} else {
+		Serial.println("This folder index is not available in this project");
+		return;
 	}
-	Serial.println("Got folder file count");
-	files_in_current_folder = status->data;
+	
+	Serial.print("Got folder file count ");
+	Serial.println(files_in_current_folder);
 	current_file_index = random(files_in_current_folder) + 1;
 	play_current();
 }
