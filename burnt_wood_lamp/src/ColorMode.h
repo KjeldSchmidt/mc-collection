@@ -131,8 +131,8 @@ class TimExistentialDreadMode : public ColorMode {
 enum Modes {strobo, ambient, river, switchsort};
 struct ModeConfig {
     Modes mode;
-    uint minRuntime;
-    uint maxRuntime;
+    uint32 minRuntime;
+    uint32 maxRuntime;
     uint16 minDelay;
     uint16 maxDelay;
     bool init;
