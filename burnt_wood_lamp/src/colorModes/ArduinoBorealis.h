@@ -5,6 +5,8 @@
 #ifndef BURNT_WOOD_LAMP_ARDUINOBOREALIS_H
 #define BURNT_WOOD_LAMP_ARDUINOBOREALIS_H
 
+#include "colorModes/ColorMode.h"
+
 //List of colors allowed for waves
 //The first dimension of this array must match the second dimension of the colorwighting array
 static uint8_t allowedcolors[5][3] = {
