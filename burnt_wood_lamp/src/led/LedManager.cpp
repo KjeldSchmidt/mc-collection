@@ -2,7 +2,7 @@
 // Created by kjeld on 31/01/2021.
 //
 
-#include "lightManager/LightManager.h"
+#include "LedManager.h"
 
 LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
 	currentColorMode = new CityAtSundown{};
