@@ -6,7 +6,7 @@
 #define BURNT_WOOD_LAMP_LIGHTMANAGER_H
 
 
-#include "ColorMode.h"
+#include "colorModes/ColorMode.h"
 #include "modes/Mode.h"
 
 class LightManager {
