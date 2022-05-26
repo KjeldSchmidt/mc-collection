@@ -16,7 +16,6 @@ public:
 
 	static const char *getModes();
 
-
 	bool setMode( Mode &newModeName, uint32_t color1 = 0, uint32_t color2 = 0 );
 
 	void updateLEDs();
@@ -25,8 +24,6 @@ public:
 
 
 private:
-	static ColorMode *decodeColorModeString( Mode &modeName, uint32_t color1 = 0, uint32_t color2 = 0 );
-
 	ColorMode *currentColorMode;
 	
 

@@ -3,13 +3,19 @@
 //
 
 #include "LedManager.h"
+#include "modes/Mode.h"
+#include "modes/Mode.h"
+#include "factories/ColorModeFactory.h"
 
 LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
-	currentColorMode = new CityAtSundown{};
+
+	Mode initialMode = Mode::PacificaMode;
+	ColorMode* initialColorMode = ColorModeFactory::createColorMode(initialMode);
+	currentColorMode = initialColorMode;
 }
 
 bool LightManager::setMode( Mode &newModeName, uint32_t color1, uint32_t color2 ) {
-	ColorMode *newMode = decodeColorModeString( newModeName, color1, color2 );
+	ColorMode *newMode = ColorModeFactory::createColorMode( newModeName, color1, color2 );
 
 	// No Mode
 	bool noMode = newMode == nullptr;
@@ -42,38 +48,6 @@ void LightManager::updateLEDs() {
 
 const char *LightManager::getModes() {
 	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorPulse, DiscoStrobo, SingleColor(Color), LaurasPartymodus(Beta), KjeldPartyModus, TimExistentialDreadMode";
-}
-
- /*ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2 ) {*/
-ColorMode *LightManager::decodeColorModeString( Mode &modeName, uint32_t color1, uint32_t color2 ) {
-	switch (modeName)
-	{
-	case Mode::CityAtSundownMode:
-		return new CityAtSundown{};
-	case Mode::GlobalColorTickMode:
-		return new GlobalColorTick{};
-	case Mode::LightsOutMode:
-		return new LightsOut{};
-	case Mode::WakeUpMode:
-		return new WakeUp{};
-	case Mode::PacificaMode:
-		return new Pacifica{};
-	case Mode::ColorPulseMode:
-		return new ColorPulse{};
-	case Mode::DiscoStroboMode:
-		return new DiscoStrobo{};
-	case Mode::SingleColorColorMode:
-		return new SingleColor{ color1 };
-	case Mode::LaurasPartymodusBetaMode:
-		return new LauraPartyMode{};
-	case Mode::KjeldPartyModusMode:
-		return new KjeldPartyMode{};
-	case Mode::TimExistentialDreadModusMode:
-		return new TimExistentialDreadMode{};
-
-	default:
-		return new CityAtSundown{};
-	}
 }
 
 LightManager::~LightManager() {
