@@ -5,10 +5,10 @@
 
 #include "FastLED.h"
 
-#include "ColorMode.h"
-#include "LampWebServer.h"
-#include "LightManager.h"
-#include "ConfigVariables.h"
+#include "colorModes/ColorMode.h"
+#include "server/LampWebServer.h"
+#include "led/LedManager.h"
+#include "config/ConfigVariables.h"
 
 // Networking
 const char *ssid = "Heisse Singles in deinem WLAN";
