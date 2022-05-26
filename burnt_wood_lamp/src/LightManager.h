@@ -7,6 +7,7 @@
 
 
 #include "ColorMode.h"
+#include "modes/Mode.h"
 
 class LightManager {
 
@@ -15,16 +16,19 @@ public:
 
 	static const char *getModes();
 
-	bool setMode( const String &newModeName, uint32_t color1 = 0, uint32_t color2 = 0 );
+
+	bool setMode( Mode &newModeName, uint32_t color1 = 0, uint32_t color2 = 0 );
 
 	void updateLEDs();
 
 	virtual ~LightManager();
 
+
 private:
-	static ColorMode *decodeColorModeString( const String &modeName, uint32_t color1 = 0, uint32_t color2 = 0 );
+	static ColorMode *decodeColorModeString( Mode &modeName, uint32_t color1 = 0, uint32_t color2 = 0 );
 
 	ColorMode *currentColorMode;
+	
 
 	uint64_t delayTime = 0;
 	uint64_t lastUpdateTime = 0;
