@@ -9,7 +9,7 @@
 
 LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
 
-	Mode initialMode = Mode::PacificaMode;
+	Mode initialMode = INITIAL_MODE;
 	ColorMode* initialColorMode = ColorModeFactory::createColorMode(initialMode);
 	currentColorMode = initialColorMode;
 }
