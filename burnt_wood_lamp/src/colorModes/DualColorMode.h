@@ -4,8 +4,9 @@
 
 class DualColorDrift : public ColorMode {
 public:
-	uint16 Update( CRGB *leds_out ) override {
-		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+	uint16 Update( CRGB *leds_out, uint16 startLED, uint16 ledCount ) override {
+		uint16 endLed = startLED + ledCount;
+		for ( uint8_t i = startLED; i < endLed; i++ ) {
 			if ( i < NUM_LEDS_LOWER ) {
 				leds_out[ i ] = lower;
 			} else {

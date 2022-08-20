@@ -2,21 +2,19 @@
 #include <ESP8266mDNS.h>
 #include <WiFiUdp.h>
 #include <ArduinoOTA.h>
-
+#include <WiFiClient.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
 #include "FastLED.h"
 
 #include "colorModes/ColorMode.h"
 #include "server/LampWebServer.h"
-#include "led/LedManager.h"
+#include "led/LightManager.h"
 #include "config/ConfigVariables.h"
-
-// Networking
-const char *ssid = "Heisse Singles in deinem WLAN";
-const char *password = "Dauerwerbesendung";
-
+#include "NotToBeCommited.h"
 
 // LEDs
-CRGB leds[NUM_LEDS];
+CRGB leds[MAX_LEDS];
 
 LightManager *lightManager = new LightManager{ leds };
 ESP8266WebServer *server = new ESP8266WebServer{ 80 };
@@ -31,7 +29,8 @@ void turnOffBuiltInLed() {
 
 void setup() {
     turnOffBuiltInLed();
-	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
+	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, MAX_LEDS );
+	//.setCorrection(CRGB(10,200,255));
 
 	lightManager->updateLEDs();
 
@@ -39,7 +38,8 @@ void setup() {
 
 	Serial.begin( 115200 );
 	WiFi.mode( WIFI_STA );
-	WiFi.begin( ssid, password );
+	WiFi.begin( SSID, PASSWORD );
+
 
 	while ( WiFi.waitForConnectResult() != WL_CONNECTED ) {
 		Serial.println( "Connection Failed! Rebooting..." );
@@ -68,23 +68,53 @@ void setup() {
 	Serial.println( "Ready" );
 	Serial.print( "IP address: " );
 	Serial.println( WiFi.localIP());
-	Serial.end();
+//	Serial.end();
+
+/*
+while ( true) {
+		Serial.println(WiFi.isConnected() );
+		WiFiClientSecure client;
+		client.setInsecure(); 
+		HTTPClient http;
+
+		// Request
+		http.begin(client, "https://obuymo6rdfdehomshnutqiyqd40mvmnf.lambda-url.eu-central-1.on.aws/ ");
+		int httpResponseCode = http.GET();
+		Serial.print("Response Code: ");
+		Serial.println(httpResponseCode);
+		if(httpResponseCode == 200){
+					String payload = http.getString();
+		Serial.print("Payload: ");
+		Serial.println(payload);
+		}
+		delay( 5000 );
+	}
+	*/
 
 	lampServer->initServer();
 }
 
 
 void loop() {
+	// Serial.println( "Start next Loop");
 	if ( !unhandledExceptionCaught ) {
 		try {
+		//	 Serial.println( "loop: handleClient");
 			lampServer->handleClient();
+		//	 Serial.println( "loop: updateLEDs");
 			lightManager->updateLEDs();
 		} catch ( std::exception &e ) {
+			Serial.println( "Error in loop");
 			unhandledExceptionCaught = true;
 			delete lampServer;
 			delete server;
 			delete lightManager;
 		}
 	}
+	else {
+		Serial.println( "unhandledExceptionCaught");
+	}
+	// Serial.println( "LED Loop complete");
 	ArduinoOTA.handle();
+	// Serial.println( "OTA Loop complete");
 }

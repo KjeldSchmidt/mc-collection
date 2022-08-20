@@ -1,13 +1,14 @@
 //
 // Created by kjeld on 31/01/2021.
 //
-
+#pragma once
 #ifndef BURNT_WOOD_LAMP_LIGHTMANAGER_H
 #define BURNT_WOOD_LAMP_LIGHTMANAGER_H
 
 
 #include "colorModes/ColorMode.h"
 #include "modes/Mode.h"
+#include "../config/lamps/ClockLamp.h"
 
 class LightManager {
 
@@ -24,12 +25,13 @@ public:
 
 
 private:
+	// ClockLamp *clockLamp;
 	ColorMode *currentColorMode;
-	
 
 	uint64_t delayTime = 0;
 	uint64_t lastUpdateTime = 0;
 	CRGB *leds_out;
+	ClockLamp lamp;
 };
 
 

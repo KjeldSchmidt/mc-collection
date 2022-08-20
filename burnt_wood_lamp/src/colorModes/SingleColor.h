@@ -6,8 +6,9 @@ class SingleColor : public ColorMode {
 public:
 	explicit SingleColor( const CRGB &color ) : color( color ) {}
 
-	uint16 Update( CRGB *leds_out ) override {
-		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+	uint16 Update( CRGB *leds_out, uint16 startLED, uint16 ledCount) override {
+		uint16 endLed = startLED + ledCount;
+		for ( uint8_t i = startLED; i < endLed; i++ ) {
 			leds_out[ i ] = color;
 		}
 		return 10000;

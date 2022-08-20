@@ -13,6 +13,7 @@
 #include "colorModes/LauraPartyMode.h"
 #include "colorModes/KjeldPartyMode.h"
 #include "colorModes/TimExistentialDreadMode.h"
+#include "colorModes/ClockMode.h"
 
 class ColorModeFactory {
 public:
@@ -41,7 +42,8 @@ public:
                 return new KjeldPartyMode{};
             case Mode::TimExistentialDreadModusMode:
                 return new TimExistentialDreadMode{};
-
+            case Mode::ClockModusMode:
+                return new ClockMode{};
             default:
                 return new CityAtSundown{};
             }

@@ -13,4 +13,5 @@ enum  Mode {
     KjeldPartyModusMode, // = 'KjeldPartyModus', 
     TimExistentialDreadModusMode, // = 'TimExistentialDreadMode',
     DualMode, // = 'DualMode', // todo add to switch case
+    ClockModusMode
 };

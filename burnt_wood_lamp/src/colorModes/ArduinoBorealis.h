@@ -34,19 +34,24 @@ public:
 		}
 	}
 
-	uint16 Update( CRGB *leds_out ) override {
+	uint16 Update( CRGB *leds_out, uint16 startLED, uint16 ledCount) override {
+		uint16_t endLed =  startLED + ledCount;
+
 		for ( auto &wave : waves ) {
-			wave->update();
+			wave->update(ledCount);
 			if ( wave->expired()) {
 				delete wave;
 				wave = new BorealisWave{};
 			}
 		}
 
-		for ( int i = 0; i < NUM_LEDS; i++ ) {
+
+		for ( int i = startLED; i < endLed; i++ ) {
 			CRGB mix = CRGB{ 0, 0, 0 };
 			for ( auto &wave : waves ) {
-				mix += wave->getColorForLED( i );
+				float center = wave->getCenter(ledCount);
+				int width = wave->getWidth(ledCount);
+				mix += wave->getColorForLED( i, ledCount, width, center );
 			}
 			leds_out[ i ] = mix;
 		}
@@ -83,14 +88,18 @@ private:
 		uint8_t basecolor_index = getWeightedColor( color_weight_preset );
 		float basealpha = random( 50, 101 ) / (float) 100;
 		int age = 0;
-		int width = random( NUM_LEDS / 10, NUM_LEDS / wave_width );
-		float center = random( 101 ) / (float) 100 * NUM_LEDS;
 		bool goingleft = random( 0, 2 ) == 0;
 		float speed = random( 10, 30 ) / (float) 100 * wave_speed;
 		bool alive = true;
 
 	public:
-		CRGB getColorForLED( int ledIndex ) const {
+		int getWidth(uint16_t ledCount){ 
+			return random( ledCount / 10, ledCount / wave_width );
+		}
+		float getCenter(uint16_t ledCount) {
+			return random( 101 ) / (float) 100 * ledCount;
+		}
+		CRGB getColorForLED( int ledIndex, uint16_t ledCount, int width, float center ) const {
 			if ( ledIndex < center - width / 2 || ledIndex > center + width / 2 ) {
 				return CRGB::Black;
 			} else {
@@ -98,7 +107,7 @@ private:
 
 				//Offset of this led from center of wave
 				//The further away from the center, the dimmer the LED
-				int offset = abs( ledIndex - (uint8_t) center );
+				int offset = abs( ledIndex - (uint8_t) center);
 				float offsetFactor = (float) offset / ( width / 2 );
 
 				//The age of the wave determines it brightness.
@@ -121,7 +130,10 @@ private:
 
 		//Change position and age of wave
 		//Determine if its sill "alive"
-		void update() {
+		void update(uint16_t ledCount) {
+			float center = getCenter(ledCount);
+			int width = getWidth(ledCount);
+
 			if ( goingleft ) {
 				center -= speed;
 			} else {
@@ -138,7 +150,7 @@ private:
 						alive = false;
 					}
 				} else {
-					if ( center - width / 2 > NUM_LEDS ) {
+					if ( center - width / 2 > ledCount ) {
 						alive = false;
 					}
 				}

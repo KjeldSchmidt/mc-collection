@@ -4,7 +4,11 @@
 
 class KjeldPartyMode : public ColorMode {
 public:
-	uint16 Update( CRGB *leds_out ) override {
+	uint16 Update( CRGB *leds_out, uint16 startLED, uint16 ledCount ) override {
+		uint16 endLed = startLED + ledCount;
+
+		// TODO
+		int NUM_LEDS = 200;
 		CRGB colors[5] = {
 				CRGB( 255, 0, 0 ),
 				CRGB( 0, 255, 0 ),

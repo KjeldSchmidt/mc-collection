@@ -6,7 +6,7 @@
 #define BURNT_WOOD_LAMP_LAMPWEBSERVER_H
 
 #include <ESP8266WebServer.h>
-#include "led/LedManager.h"
+#include "led/LightManager.h"
 
 class LampWebServer {
 public:

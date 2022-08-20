@@ -42,6 +42,8 @@ struct ModeConfig {
     private: bool stroboToggle = false;
     private: uint8 lastStroboColorIndex = -1;
 
+		// TODO
+	private: int NUM_LEDS = 200;
     // MODE: SINGLE
     // Colors
 
@@ -53,7 +55,8 @@ struct ModeConfig {
 
     // Override Update
     // Return (uint 16) -> Delay in MilliSeconds
-    public: uint16 Update(CRGB *leds_out) override {
+    public: uint16 Update(CRGB *leds_out, uint16 startLED, uint16 ledCount) override {
+        uint16 endLed = startLED + ledCount;
         // Init
         Init();
 

@@ -1,8 +1,6 @@
 //
 // Created by kjeld on 25/11/2020.
 //
-#pragma once
-
 #ifndef BURNT_WOOD_LAMP_COLORMODE_H
 #define BURNT_WOOD_LAMP_COLORMODE_H
 
@@ -11,7 +9,7 @@
 
 class ColorMode {
 public:
-	virtual uint16 Update( CRGB *leds_out ) = 0;
+	virtual uint16 Update( CRGB *leds_out, uint16 startLED = -1, uint16 ledCount = -1 ) = 0;
 
 	virtual ~ColorMode() = default;
 

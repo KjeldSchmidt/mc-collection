@@ -16,6 +16,7 @@ std::string ModeToString(Mode value)
     if (value == Mode::KjeldPartyModusMode)  return "KjeldPartyModus";
     if (value == Mode::TimExistentialDreadModusMode)  return "TimExistentialDreadMode";
     if (value == Mode::DualMode)  return "DualMode";
+    if (value == Mode::ClockModusMode)  return "ClockMode";
 
     return "CityAtSundown";
 }
@@ -33,6 +34,7 @@ Mode ModeFromString(const std::string &value)
     if (value == "KjeldPartyModus") return Mode::KjeldPartyModusMode;
     if (value == "TimExistentialDreadMode")  return Mode::TimExistentialDreadModusMode;
     if (value == "DualMode") return Mode::DualMode;
+    if (value == "ClockMode") return Mode::ClockModusMode;
 
     return Mode::CityAtSundownMode;
 }
