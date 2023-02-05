@@ -14,15 +14,15 @@ class ClockLamp: public Lamp {
    static const uint16 LED_DELAY = 10; // Todo Update
   // static const uint16 CLOCK_NUM_LEDS_TOTAL = -1; // Todo Update
    static const uint16 CLOCK_RING_RIGHT_START_LED = 0; // Todo Update
-   static const uint16 CLOCK_RING_RIGHT_NUM_LEDS = 22; // Todo Update
+   static const uint16 CLOCK_RING_RIGHT_NUM_LEDS = 23; // Todo Update
    static const uint16 CLOCK_BIG_RING_START_LED = 22; // Todo Update
-   static const uint16 CLOCK_BIG_RING_NUM_LEDS = 74; // Todo Update
-   static const uint16 CLOCK_S_START_LED = 96; // Todo Update
+   static const uint16 CLOCK_BIG_RING_NUM_LEDS = 75; // Todo Update
+   static const uint16 CLOCK_S_START_LED = 97; // Todo Update
    static const uint16 CLOCK_S_NUM_LEDS = 65; // Todo Update
    //  const int16 CLOCK_S_PART_1_NUM_LEDS 33 // Todo Update
    //  const int16 CLOCK_S_PART_2_NUM_LEDS 32 // Todo Update
-   static const uint16 CLOCK_RING_LEFT_START = 161; // Todo Update
-   static const uint16 CLOCK_RING_LEFT_NUM_LEDS = 23; // Todo Update
+   static const uint16 CLOCK_RING_LEFT_START = 162; // Todo Update
+   static const uint16 CLOCK_RING_LEFT_NUM_LEDS = 22; // Todo Update
    // static const String WEATHER_URL = 'https://obuymo6rdfdehomshnutqiyqd40mvmnf.lambda-url.eu-central-1.on.aws/';
    static const bool debugIsOn = false;
     std::vector<LedStripe*> ledStripes;
