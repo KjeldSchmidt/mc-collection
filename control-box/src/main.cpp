@@ -14,7 +14,7 @@ Adafruit_MPR121 cap = Adafruit_MPR121();
 
 // create 10 arrays, each with 10 elements set to 0
 uint8_t lastReadings[10][10] = {0};
-uint8_t last_reading_pointer;
+uint8_t last_reading_index = 0;
 
 void setup() {
   Serial.begin(9600);
@@ -46,17 +46,23 @@ void loop() {
   Serial.print("Filt: ");
   for (uint16_t i=0; i<10; i++) {
     uint16_t currentReading = cap.filteredData(i);
-
-    // calculate the average of the last 10 readings
-    uint16_t average = 0;
+    float average = 0;
     for (uint8_t j=0; j<10; j++) {
       average += lastReadings[i][j];
     }
 
+    average /= 10;
+
+    // if the current reading is 3 lower than the average, trigger the function
+    if (currentReading < average - 3) {
+      triggerFunctions[i]();
+    }
 
     Serial.print(currentReading); Serial.print("\t");
-
+    lastReadings[i][last_reading_index] = currentReading;
   }
+
+  last_reading_index = (last_reading_index + 1) % 10;
   Serial.println();
 
   delay(100);
