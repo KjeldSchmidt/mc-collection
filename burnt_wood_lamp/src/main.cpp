@@ -31,7 +31,7 @@ void turnOffBuiltInLed() {
 
 void setup() {
     turnOffBuiltInLed();
-	CFastLED::addLeds<WS2812B, DATA_PIN, GRB>( leds, NUM_LEDS );
+	CFastLED::addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>( leds, NUM_LEDS );
 
 	lightManager->updateLEDs();
 
