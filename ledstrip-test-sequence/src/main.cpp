@@ -17,8 +17,8 @@ CRGB leds[NUM_LEDS];
 bool unhandledExceptionCaught = false;
 
 void turnOffBuiltInLed() {
-    pinMode( D4, OUTPUT );
-    digitalWrite( D4, HIGH );
+    pinMode( LED_BUILTIN, OUTPUT );
+    digitalWrite( LED_BUILTIN, HIGH );
 }
 
 void setup() {
@@ -34,9 +34,16 @@ void setup() {
 
 
 void loop() {
-	Serial.print(".");
-	delay(1000);
+	Serial.println("");
+	Serial.println("Start Sequence");
+	Serial.println("Black");
 	for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
 		leds[ i ] = CRGB::Black;
 	}
+	delay(1000);
+	Serial.println("White");
+	for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+		leds[ i ] = CRGB(50, 50, 50);
+	}
+	delay(1000);
 }

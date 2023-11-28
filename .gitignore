@@ -5,4 +5,4 @@ libs/
 cmake-build-*
 */.pio/*
 */.idea/*
-
+.DS_STORE
