@@ -11,6 +11,7 @@
 // 7: 12
 // 8: 8
 // 9: 6
+// 0: 4
 
 #define BEDROOM_LIGHTS_PIN 11
 #define BED_WALL_LIGHTS_PIN 9
@@ -18,6 +19,7 @@
 #define WINDOW_WALL_LIGHTS_PIN 5
 #define LIVING_ROOM_LIGHTS_PIN 3
 #define VOLUME_DOWN_PIN 10
+#define VOLUME_UP_PIN 4
 #define PREVIOUS_SONG_PIN 12
 #define PLAY_PAUSE_PIN 8
 #define NEXT_SONG_PIN 6
@@ -28,6 +30,7 @@ bool hallwayLightsPressed = false;
 bool windowWallLightsPressed = false;
 bool livingRoomLightsPressed = false;
 bool volumeDownPressed = false;
+bool volumeUpPressed = false;
 bool previousSongPressed = false;
 bool playPausePressed = false;
 bool nextSongPressed = false;
@@ -55,6 +58,7 @@ void loop() {
   printOnRisingEdge(WINDOW_WALL_LIGHTS_PIN, windowWallLightsPressed, "WINDOW_WALL_LIGHTS");
   printOnRisingEdge(LIVING_ROOM_LIGHTS_PIN, livingRoomLightsPressed, "LIVING_ROOM_LIGHTS");
   printOnRisingEdge(VOLUME_DOWN_PIN, volumeDownPressed, "VOLUME_DOWN");
+  printOnRisingEdge(VOLUME_UP_PIN, volumeUpPressed, "VOLUME_UP");
   printOnRisingEdge(PREVIOUS_SONG_PIN, previousSongPressed, "PREVIOUS_SONG");
   printOnRisingEdge(PLAY_PAUSE_PIN, playPausePressed, "PLAY_PAUSE");
   printOnRisingEdge(NEXT_SONG_PIN, nextSongPressed, "NEXT_SONG");

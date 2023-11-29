@@ -1,95 +1,97 @@
-/*********************************************************
-This is a library for the MPR121 12-channel Capacitive touch sensor
+#include "Arduino.h"
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <WiFiClientSecure.h>
+#include "Secrets.h"
 
-Designed specifically to work with the MPR121 Breakout in the Adafruit shop 
-  ----> https://www.adafruit.com/products/
-
-These sensors use I2C communicate, at least 2 pins are required 
-to interface
-
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
-products from Adafruit!
-
-Written by Limor Fried/Ladyada for Adafruit Industries.  
-BSD license, all text above must be included in any redistribution
-**********************************************************/
-
-#include <Wire.h>
-#include "Adafruit_MPR121.h"
-
-#ifndef _BV
-#define _BV(bit) (1 << (bit)) 
-#endif
-
-// You can have up to 4 on one i2c bus but one is enough for testing!
-Adafruit_MPR121 cap = Adafruit_MPR121();
-
-// Keeps track of the last pins touched
-// so we know when buttons are 'released'
-uint16_t lasttouched = 0;
-uint16_t currtouched = 0;
+// Connect to WiFi network
+const char* ssid     = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+String control_server_base_url = "http://192.168.178.2:5000";
 
 void setup() {
   Serial.begin(9600);
 
-  while (!Serial) { // needed to keep leonardo/micro from starting too fast!
+  while (!Serial) { 
     delay(10);
   }
-  
-  Serial.println("Adafruit MPR121 Capacitive Touch sensor test"); 
-  
-  // Default address is 0x5A, if tied to 3.3V its 0x5B
-  // If tied to SDA its 0x5C and if SCL then 0x5D
-  if (!cap.begin(0x5A)) {
-    Serial.println("MPR121 not found, check wiring?");
-    while (1);
-  }
-  Serial.println("MPR121 found!");
 
-  cap.writeRegister(MPR121_AUTOCONFIG0, 0b00001011);
+  WiFi.begin(ssid, password);
+  Serial.println("");
+  Serial.println("Connecting to WiFi " + String(ssid) + "...");
 
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }  
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+}
 
-  // correct values for Vdd = 3.3V
-  cap.writeRegister(MPR121_UPLIMIT, 200);     // ((Vdd - 0.7)/Vdd) * 256
-  cap.writeRegister(MPR121_TARGETLIMIT, 180); // UPLIMIT * 0.9
-  cap.writeRegister(MPR121_LOWLIMIT, 130);    // UPLIMIT * 0.65
+void sendRequest(String url) {
+  WiFiClient client;
+      HTTPClient http;
+      http.begin(client, url );
+      int httpCode = http.GET();
+      if (httpCode > 0) {
+        Serial.printf("[HTTP] GET... code: %d\n", httpCode);
+        if (httpCode == HTTP_CODE_OK) {
+          String payload = http.getString();
+          Serial.println(payload);
+        }
+      } else {
+        Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+      }
+      http.end();
 }
 
 void loop() {
-  // Get the currently touched pads
-  currtouched = cap.touched();
-  
-  for (uint8_t i=0; i<12; i++) {
-    // it if *is* touched and *wasnt* touched before, alert!
-    if ((currtouched & _BV(i)) && !(lasttouched & _BV(i)) ) {
-      Serial.print(i); Serial.println(" touched");
-    }
-    // if it *was* touched and now *isnt*, alert!
-    if (!(currtouched & _BV(i)) && (lasttouched & _BV(i)) ) {
-      Serial.print(i); Serial.println(" released");
-    }
-  }
+  if (Serial.available()) {
+    String input = Serial.readStringUntil('\n');
+    input.trim();
+    Serial.println("Received: " + input);
 
-  // reset our state
-  lasttouched = currtouched;
-
-  // comment out this line for detailed data from the sensor!
-  // return;
-  
-  // debugging info, what
-  Serial.print("\t\t\t\t\t\t\t\t\t\t\t\t\t 0x"); Serial.println(cap.touched(), HEX);
-  Serial.print("Filt: ");
-  for (uint8_t i=0; i<12; i++) {
-    Serial.print(cap.filteredData(i)); Serial.print("\t");
+    if ( input == "BEDROOM_LIGHTS" ) {
+      Serial.println("Executing: BEDROOM_LIGHTS");
+      sendRequest(control_server_base_url + "/ceiling/bedroom/toggle");
+    }
+    if ( input == "BED_WALL_LIGHTS" ) {
+      Serial.println("Executing: BED_WALL_LIGHTS");
+      sendRequest(control_server_base_url + "/woodlamp/bedLamp/toggle");
+    }
+    if ( input == "HALLWAY_LIGHTS" ) {
+      Serial.println("Executing: HALLWAY_LIGHTS");
+      sendRequest(control_server_base_url + "/ceiling/hall/toggle");
+    }
+    if ( input == "WINDOW_WALL_LIGHTS" ) {
+      Serial.println("Executing: WINDOW_WALL_LIGHTS");
+      sendRequest(control_server_base_url + "/woodlamp/beamLamp/toggle");
+    }
+    if ( input == "LIVING_ROOM_LIGHTS" ) {
+      Serial.println("Executing: LIVING_ROOM_LIGHTS");
+      sendRequest(control_server_base_url + "/ceiling/living%20room/toggle");
+    }
+    if ( input == "VOLUME_DOWN" ) {
+      Serial.println("Executing: VOLUME_DOWN");
+      sendRequest(control_server_base_url + "/spotify/volume-down");
+    }
+    if ( input == "VOLUME_UP" ) {
+      Serial.println("Executing: VOLUME_UP");
+      sendRequest(control_server_base_url + "/spotify/volume-up");
+    }
+    if ( input == "PREVIOUS_SONG" ) {
+      Serial.println("Executing: PREVIOUS_SONG");
+      sendRequest(control_server_base_url + "/spotify/previous");
+    }
+    if ( input == "PLAY_PAUSE" ) {
+      Serial.println("Executing: PLAY_PAUSE");
+      sendRequest(control_server_base_url + "/spotify/play-pause");
+    }
+    if ( input == "NEXT_SONG" ) {
+      Serial.println("Executing: NEXT_SONG");
+      sendRequest(control_server_base_url + "/spotify/next");
+    }
   }
-  Serial.println();
-  Serial.print("Base: ");
-  for (uint8_t i=0; i<12; i++) {
-    Serial.print(cap.baselineData(i)); Serial.print("\t");
-  }
-  Serial.println();
-  
-  // put a delay so it isn't overwhelming
-  delay(250);
 }
