@@ -4,10 +4,90 @@
 #include <WiFiClientSecure.h>
 #include "Secrets.h"
 
-// Connect to WiFi network
+#include "Arduino.h"
+#include <MFRC522.h>
+#include <SPI.h>
+
+// RFID Config
+#define RFID_CHIP_SELECT_PIN 15
+#define RFID_RESET_PIN 16
+#define BUFFER_LENGTH_FOR_SPOTIFY_ID 22
+#define SPOTIFY_ID_LENGTH 22
+
+MFRC522 rfid(RFID_CHIP_SELECT_PIN, RFID_RESET_PIN);
+byte buffer[BUFFER_LENGTH_FOR_SPOTIFY_ID];
+MFRC522::MIFARE_Key key;
+MFRC522::StatusCode status;
+byte buffer_size = BUFFER_LENGTH_FOR_SPOTIFY_ID;
+
+const uint8_t ITERATIONS_WITHOUT_CARD_BEFORE_NEW_READ = 20;
+uint8_t noCardCount = 0;
+
+// Network Config
 const char* ssid     = WIFI_SSID;
 const char* password = WIFI_PASSWORD;
 String control_server_base_url = "http://192.168.178.2:5000";
+
+void sendRequest(String url) {
+  WiFiClient client;
+      HTTPClient http;
+      http.begin(client, url );
+      int httpCode = http.GET();
+      if (httpCode > 0) {
+        Serial.printf("[HTTP] GET... code: %d\n", httpCode);
+        if (httpCode == HTTP_CODE_OK) {
+          String payload = http.getString();
+          Serial.println(payload);
+        }
+      } else {
+        Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+      }
+      http.end();
+}
+
+void setUnprotectedRfidKey() {
+  for ( byte i = 0; i < 6; i++ ) { 
+		key.keyByte[ i ] = 0xFF;
+	}
+}
+
+String readSpotifyId() {
+  String spotifyId = "";
+  status = rfid.MIFARE_Read(6, buffer, &buffer_size);
+  for ( uint8_t i = 0; i < 16; i++ ) {
+    spotifyId += (char) buffer[i];
+  }
+  
+  status = rfid.MIFARE_Read(10, buffer, &buffer_size);
+  for ( uint8_t i = 0; i < 6; i++ ) {
+    spotifyId += (char) buffer[i];
+  }
+  return spotifyId;
+}
+
+void handleRfidTag() {
+  if ( !rfid.PICC_IsNewCardPresent() || !rfid.PICC_ReadCardSerial()) {
+    noCardCount++;
+    noCardCount = min(noCardCount, ITERATIONS_WITHOUT_CARD_BEFORE_NEW_READ);
+    Serial.println("No card seen in " + String(noCardCount) + " iterations.");
+		return;
+	}
+
+  if (noCardCount < ITERATIONS_WITHOUT_CARD_BEFORE_NEW_READ) {
+    noCardCount = 0;
+    Serial.println("Seen card, but only " + String(noCardCount) + " iterations since last card read.");
+    return;
+  }
+  noCardCount = 0;
+  
+  Serial.println("Seen card, reading spotify ID.");
+
+  String spotifyId = readSpotifyId();
+  if (spotifyId.length() == SPOTIFY_ID_LENGTH) {
+    Serial.println("Spotify ID: " + spotifyId);
+    sendRequest(control_server_base_url + "/spotify/play/album/" + spotifyId);
+  }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -28,23 +108,10 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
-}
 
-void sendRequest(String url) {
-  WiFiClient client;
-      HTTPClient http;
-      http.begin(client, url );
-      int httpCode = http.GET();
-      if (httpCode > 0) {
-        Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-        if (httpCode == HTTP_CODE_OK) {
-          String payload = http.getString();
-          Serial.println(payload);
-        }
-      } else {
-        Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
-      }
-      http.end();
+  SPI.begin();
+	rfid.PCD_Init();
+	setUnprotectedRfidKey();
 }
 
 void loop() {
@@ -94,4 +161,7 @@ void loop() {
       sendRequest(control_server_base_url + "/spotify/next");
     }
   }
+
+  handleRfidTag();
+  delay( 50 );
 }
