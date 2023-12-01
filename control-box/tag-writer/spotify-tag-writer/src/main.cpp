@@ -12,6 +12,21 @@ byte buffer[BUFFER_LENGTH_FOR_SPOTIFY_ID];
 MFRC522::MIFARE_Key key;
 byte buffer_size = BUFFER_LENGTH_FOR_SPOTIFY_ID;
 
+String spotifyIds[10] = {
+  "    6rDoJMiKUputhDBLDXhVI4",
+  "    19yVtAOeHin37T0c6caGrk",
+  "    39vNHJ3nDr6oO9mWLrRpsI",
+  "    5pnJrocLlZ3FWEbcr2PTz0",
+  "    0vVekV45lOaVKs6RZQQNob",
+  "    50d6Esrv3FnW4p4W6yT5fj",
+  "    3BIJimflJCEKdoMFSenabT",
+  "    6aylSUY5zgAR3NU1OGq9FI",
+  "    4INFVEhhhnLiqNR4MVPaX8",
+  "    1s6LKmXfmbYoM2SB1BjMYp",
+};
+
+uint8_t spotifyIdIndex = 0;
+
 void setUnprotectedRfidKey() {
   for ( byte i = 0; i < 6; i++ ) { 
 		key.keyByte[ i ] = 0xFF;
@@ -48,7 +63,7 @@ void loop() {
 
   Serial.readBytesUntil('\n', buffer, BUFFER_LENGTH_FOR_SPOTIFY_ID); 
 
-  String spotifyId = "    50d6Esrv3FnW4p4W6yT5fj";
+  String spotifyId = spotifyIds[spotifyIdIndex];
   // convert spotifyId to byte array
   for (uint8_t i = 0; i < spotifyId.length(); i++) {
     buffer[i] = spotifyId[i];
@@ -63,6 +78,7 @@ void loop() {
 
   rfid.MIFARE_Read(0, buffer, &buffer_size);
   Serial.println(extractSpotifyIdFromBuffer());
+  spotifyIdIndex = (spotifyIdIndex + 1);
 
 	delay( 1000 );
 }
