@@ -11,20 +11,6 @@ MFRC522 rfid(RFID_CHIP_SELECT_PIN, RFID_RESET_PIN);
 byte buffer[BUFFER_LENGTH_FOR_SPOTIFY_ID];
 MFRC522::MIFARE_Key key;
 byte buffer_size = BUFFER_LENGTH_FOR_SPOTIFY_ID;
-String spotifyIds[10] = {
-  "    6rDoJMiKUputhDBLDXhVI4",
-  "    19yVtAOeHin37T0c6caGrk",
-  "    39vNHJ3nDr6oO9mWLrRpsI",
-  "    5pnJrocLlZ3FWEbcr2PTz0",
-  "    0vVekV45lOaVKs6RZQQNob",
-  "    50d6Esrv3FnW4p4W6yT5fj",
-  "    3BIJimflJCEKdoMFSenabT",
-  "    6aylSUY5zgAR3NU1OGq9FI",
-  "    4INFVEhhhnLiqNR4MVPaX8",
-  "    1s6LKmXfmbYoM2SB1BjMYp",
-};
-
-uint8_t spotifyIdIndex = 0;
 
 void setUnprotectedRfidKey() {
   for ( byte i = 0; i < 6; i++ ) { 
@@ -57,19 +43,26 @@ void loop() {
 		return;
 	}
 
-  // copy the spotify id into the buffer
-  for ( uint8_t i = 0; i < spotifyIds[spotifyIdIndex].length(); i++ ) {
-    buffer[i] = spotifyIds[spotifyIdIndex][i];
+  MFRC522::PICC_Type piccType = rfid.PICC_GetType(rfid.uid.sak);
+    Serial.println(rfid.PICC_GetTypeName(piccType));
+
+  Serial.readBytesUntil('\n', buffer, BUFFER_LENGTH_FOR_SPOTIFY_ID); 
+
+  String spotifyId = "    50d6Esrv3FnW4p4W6yT5fj";
+  // convert spotifyId to byte array
+  for (uint8_t i = 0; i < spotifyId.length(); i++) {
+    buffer[i] = spotifyId[i];
   }
   
-  // Writing the buffer in chunks of 4 bytes, because apparently that is how it works
+	rfid.MIFARE_Ultralight_Write(12, buffer, buffer_size);
+  // iterate over buffer in chunks of 4
   for (uint8_t i = 0; i < buffer_size; i += 4) {
+    // write 4 bytes at a time
     rfid.MIFARE_Ultralight_Write(11 + i, buffer + i, 4);
   }
 
   rfid.MIFARE_Read(0, buffer, &buffer_size);
   Serial.println(extractSpotifyIdFromBuffer());
-  spotifyIdIndex = spotifyIdIndex + 1; 
 
 	delay( 1000 );
 }
