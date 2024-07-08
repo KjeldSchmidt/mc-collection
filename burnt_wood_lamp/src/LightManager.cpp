@@ -5,7 +5,7 @@
 #include "LightManager.h"
 
 LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
-	currentColorMode = new LightsOut{};
+	currentColorMode = new CityAtSundown{};
 }
 
 bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t color2 ) {
@@ -15,6 +15,8 @@ bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t
 
 	delete currentColorMode;
 	currentColorMode = newMode;
+	currentColorMode->Update( leds_out );
+	FastLED.show();
 	delayTime = 0;
 	return true;
 }

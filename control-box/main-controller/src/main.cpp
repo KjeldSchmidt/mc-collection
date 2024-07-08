@@ -1,6 +1,7 @@
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
+#include <ArduinoOTA.h>
 #include <WiFiClientSecure.h>
 #include "Secrets.h"
 
@@ -47,8 +48,8 @@ void sendRequest(String url) {
 
 void setUnprotectedRfidKey() {
   for ( byte i = 0; i < 6; i++ ) { 
-		key.keyByte[ i ] = 0xFF;
-	}
+    key.keyByte[ i ] = 0xFF;
+  }
 }
 
 String readSpotifyId() {
@@ -70,8 +71,8 @@ void handleRfidTag() {
     noCardCount++;
     noCardCount = min(noCardCount, ITERATIONS_WITHOUT_CARD_BEFORE_NEW_READ);
     Serial.println("No card seen in " + String(noCardCount) + " iterations.");
-		return;
-	}
+    return;
+  }
 
   if (noCardCount < ITERATIONS_WITHOUT_CARD_BEFORE_NEW_READ) {
     noCardCount = 0;
@@ -87,6 +88,27 @@ void handleRfidTag() {
     Serial.println("Spotify ID: " + spotifyId);
     sendRequest(control_server_base_url + "/spotify/play/album/" + spotifyId);
   }
+}
+
+void prepare_over_the_air_updates() {
+  ArduinoOTA.onStart( []() { Serial.println( "Start" ); });
+  
+  ArduinoOTA.onEnd( []() { Serial.println( "\nEnd" ); });
+  
+  ArduinoOTA.onProgress( []( unsigned int progress, unsigned int total ) {
+    Serial.printf( "Progress: %u%%\r", ( progress / ( total / 100 )));
+  });
+  
+  ArduinoOTA.onError( []( ota_error_t error ) {
+    Serial.printf( "Error[%u]: ", error );
+    if ( error == OTA_AUTH_ERROR ) Serial.println( "Auth Failed" );
+    else if ( error == OTA_BEGIN_ERROR ) Serial.println( "Begin Failed" );
+    else if ( error == OTA_CONNECT_ERROR ) Serial.println( "Connect Failed" );
+    else if ( error == OTA_RECEIVE_ERROR ) Serial.println( "Receive Failed" );
+    else if ( error == OTA_END_ERROR ) Serial.println( "End Failed" );
+  });
+
+  ArduinoOTA.begin();
 }
 
 void setup() {
@@ -110,8 +132,9 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   SPI.begin();
-	rfid.PCD_Init();
-	setUnprotectedRfidKey();
+  rfid.PCD_Init();
+  setUnprotectedRfidKey();
+  prepare_over_the_air_updates();
 }
 
 void loop() {
@@ -122,7 +145,7 @@ void loop() {
 
     if ( input == "BEDROOM_LIGHTS" ) {
       Serial.println("Executing: BEDROOM_LIGHTS");
-      sendRequest(control_server_base_url + "/ceiling/bedroom/toggle");
+      sendRequest(control_server_base_url + "/ceiling/ceiling-bedroom/toggle");
     }
     if ( input == "BED_WALL_LIGHTS" ) {
       Serial.println("Executing: BED_WALL_LIGHTS");
@@ -130,7 +153,7 @@ void loop() {
     }
     if ( input == "HALLWAY_LIGHTS" ) {
       Serial.println("Executing: HALLWAY_LIGHTS");
-      sendRequest(control_server_base_url + "/ceiling/hall/toggle");
+      sendRequest(control_server_base_url + "/ceiling/ceiling-hallway/toggle");
     }
     if ( input == "WINDOW_WALL_LIGHTS" ) {
       Serial.println("Executing: WINDOW_WALL_LIGHTS");
@@ -138,7 +161,7 @@ void loop() {
     }
     if ( input == "LIVING_ROOM_LIGHTS" ) {
       Serial.println("Executing: LIVING_ROOM_LIGHTS");
-      sendRequest(control_server_base_url + "/ceiling/living%20room/toggle");
+      sendRequest(control_server_base_url + "/ceiling/ceiling-livingroom/toggle");
     }
     if ( input == "VOLUME_DOWN" ) {
       Serial.println("Executing: VOLUME_DOWN");
@@ -163,5 +186,6 @@ void loop() {
   }
 
   handleRfidTag();
+  ArduinoOTA.handle();
   delay( 50 );
 }
