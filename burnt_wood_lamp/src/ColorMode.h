@@ -6,8 +6,6 @@
 #define BURNT_WOOD_LAMP_COLORMODE_H
 
 #include "FastLED.h"
-#include "ConfigVariables.h"
-
 
 class ColorMode {
 public:
@@ -542,7 +540,7 @@ public:
 		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
 			leds_out[ i ] = color;
 		}
-		return 10000;
+		return 1000;
 	}
 
 	constexpr static const char *getName() {
@@ -567,7 +565,7 @@ public:
 				leds_out[ i ] = color_upper;
 			}
 		}
-		return 10000;
+		return 1000;
 	}
 
 	constexpr static const char *getName() {

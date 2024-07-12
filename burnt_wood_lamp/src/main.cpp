@@ -8,7 +8,6 @@
 #include "ColorMode.h"
 #include "LampWebServer.h"
 #include "LightManager.h"
-#include "ConfigVariables.h"
 
 // Networking
 const char *ssid = "Heisse Singles in deinem WLAN";
