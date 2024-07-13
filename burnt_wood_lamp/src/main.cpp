@@ -8,10 +8,7 @@
 #include "ColorMode.h"
 #include "LampWebServer.h"
 #include "LightManager.h"
-
-// Networking
-const char *ssid = "Heisse Singles in deinem WLAN";
-const char *password = "Dauerwerbesendung";
+#include "Secrets.h"
 
 
 // LEDs
