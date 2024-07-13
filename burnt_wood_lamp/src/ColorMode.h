@@ -540,7 +540,7 @@ public:
 		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
 			leds_out[ i ] = color;
 		}
-		return 1000;
+		return 10000;
 	}
 
 	constexpr static const char *getName() {

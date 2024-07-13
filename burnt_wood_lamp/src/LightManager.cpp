@@ -15,8 +15,7 @@ bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t
 
 	delete currentColorMode;
 	currentColorMode = newMode;
-	currentColorMode->Update( leds_out );
-	FastLED.show();
+	
 	delayTime = 0;
 	return true;
 }
