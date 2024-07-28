@@ -19,9 +19,7 @@ void LampWebServer::setMode() {
 	String newModeName = server->arg( "newMode" );
 	server->sendHeader( "Access-Control-Allow-Origin", "*" );
 
-	if ( server->args() == 1 ) {
-		success = lightManager->setMode( newModeName );
-	} else if ( newModeName == "SingleColor" ) {
+	if ( newModeName == "SingleColor" ) {
 		if ( !server->hasArg( "color" )) {
 			server->send( 400, "text/plain", "SingleColor(color) requires a hex arg" );
 			return;
@@ -33,12 +31,23 @@ void LampWebServer::setMode() {
 			return;
 		}
 		success = lightManager->setMode( newModeName, color );
+	} else if ( newModeName == ColorFromPayload::getName() ) {
+		if ( !server->hasArg( "payload" )) {
+			server->send( 400, "text/plain", "ColorFromPaylopad requires a payload." );
+			return;
+		}
+		const String payload = server->arg( "payload" );
+		success = lightManager->setMode( newModeName, 0, 0, payload );
+	}
+
+	if ( server->args() == 1 ) {
+		success = lightManager->setMode( newModeName );
 	}
 
 	if ( success ) {
 		server->send( 200 );
 	} else {
-		server->send( 400 );
+		server->send( 400, "text/plain", "Unknown mode" );
 	}
 }
 

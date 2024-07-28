@@ -15,14 +15,24 @@ public:
 
 	static const char *getModes();
 
-	bool setMode( const String &newModeName, uint32_t color1 = 0, uint32_t color2 = 0 );
+	bool setMode(
+		const String &newModeName,
+		uint32_t color1 = 0,
+		uint32_t color2 = 0,
+		const String &payload = ""
+	);
 
 	void updateLEDs();
 
 	virtual ~LightManager();
 
 private:
-	static ColorMode *decodeColorModeString( const String &modeName, uint32_t color1 = 0, uint32_t color2 = 0 );
+	static ColorMode *decodeColorModeString(
+		const String &modeName,
+		uint32_t color1,
+		uint32_t color2,
+		const String &payload
+	);
 
 	ColorMode *currentColorMode;
 

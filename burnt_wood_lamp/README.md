@@ -1,12 +1,10 @@
 # run
-pio run
-pio run -t upload (oder pfeil button)
-
-build without wifi comment out:
-- ; upload_protocol = espota
-- ; upload_port = 192.168.178.26
+```bash
+pio run # Compile
+pio run -t upload -e <env_name> # Upload
+```
 
 # requirements
 - min 3A (60mA / LED)
 - 5V
-- power supply unit above ~ 100 LEDs
+- power supply unit for ~100 LEDs

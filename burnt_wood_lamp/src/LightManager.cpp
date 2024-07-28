@@ -8,8 +8,13 @@ LightManager::LightManager( CRGB *leds_out ) : leds_out( leds_out ) {
 	currentColorMode = new CityAtSundown{};
 }
 
-bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t color2 ) {
-	ColorMode *newMode = decodeColorModeString( newModeName, color1, color2 );
+bool LightManager::setMode(
+	const String &newModeName,
+	uint32_t color1,
+	uint32_t color2,
+	const String &payload
+) {
+	ColorMode *newMode = decodeColorModeString( newModeName, color1, color2, payload );
 
 	if ( newMode == nullptr ) return false;
 
@@ -33,7 +38,7 @@ const char *LightManager::getModes() {
 	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorWheel, ColorPulse, DiscoStrobo, SingleColor(Color), LaurasPartymodus(Beta), KjeldPartyModus";
 }
 
-ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2 ) {
+ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2, const String &payload ) {
 	if ( modeName == "CityAtSundown" ) {
 		return new CityAtSundown{};
 	}
@@ -57,6 +62,9 @@ ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t
 	}
 	if ( modeName == "SingleColor" ) {
 		return new SingleColor{ color1 };
+	}
+	if ( modeName == ColorFromPayload::getName() ) {
+		return new ColorFromPayload{ payload };
 	}
 	if ( modeName == "DiscoStrobo" ) {
 		return new DiscoStrobo{};

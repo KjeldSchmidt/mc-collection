@@ -6,6 +6,7 @@
 #define BURNT_WOOD_LAMP_COLORMODE_H
 
 #include "FastLED.h"
+#include "base64decode.h"
 
 class ColorMode {
 public:
@@ -36,6 +37,34 @@ public:
 		return "FireMode";
 	}
 };
+
+
+class ColorFromPayload : public ColorMode {
+public:
+	explicit ColorFromPayload( const String &payload ): colors{} {
+		uint8_t binary_payload[payload.length()];
+		base64_decode(payload, binary_payload);
+
+		for (size_t i = 0; i < NUM_LEDS; i++) {
+			colors[i] = CRGB(binary_payload[3*i], binary_payload[3*i+1], binary_payload[3*i+2]);
+		}
+	}
+
+	uint16 Update(CRGB *leds_out) override {
+		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+			leds_out[i] = colors[i];
+		}
+
+		return 1000;
+	}
+
+	constexpr static const char *getName() {
+		return "ColorFromPayload";
+	}
+private:
+	CRGB colors[NUM_LEDS];
+};
+
 
 class KjeldPartyMode : public ColorMode {
 public:
