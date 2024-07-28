@@ -39,44 +39,44 @@ const char *LightManager::getModes() {
 }
 
 ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2, const String &payload ) {
-	if ( modeName == "CityAtSundown" ) {
+	if ( modeName == CityAtSundown::getName() ) {
 		return new CityAtSundown{};
 	}
-	if ( modeName == "GlobalColorTick" ) {
+	if ( modeName == GlobalColorTick::getName() ) {
 		return new GlobalColorTick{};
 	}
-	if ( modeName == "LightsOut" ) {
+	if ( modeName == LightsOut::getName() ) {
 		return new LightsOut{};
 	}
-	if ( modeName == "WakeUp" ) {
+	if ( modeName == WakeUp::getName() ) {
 		return new WakeUp{};
 	}
-	if ( modeName == "Pacifica" ) {
+	if ( modeName == Pacifica::getName() ) {
 		return new Pacifica{};
 	}
-	if ( modeName == "ColorWheel" ) {
+	if ( modeName == ColorWheel::getName() ) {
 		return new ColorWheel{};
 	}
-	if ( modeName == "ColorPulse" ) {
+	if ( modeName == ColorPulse::getName() ) {
 		return new ColorPulse{};
 	}
-	if ( modeName == "SingleColor" ) {
+	if ( modeName == SingleColor::getName() ) {
 		return new SingleColor{ color1 };
 	}
 	if ( modeName == ColorFromPayload::getName() ) {
 		return new ColorFromPayload{ payload };
 	}
-	if ( modeName == "DiscoStrobo" ) {
+	if ( modeName == DiscoStrobo::getName() ) {
 		return new DiscoStrobo{};
 	}
-	if ( modeName == "LaurasPartymodus(Beta)" ) {
+	if ( modeName == LauraPartyMode::getName() ) {
 		return new LauraPartyMode{};
 	}
-	if ( modeName == "KjeldPartyModus" ) {
+	if ( modeName == KjeldPartyMode::getName() ) {
 		return new KjeldPartyMode{};
 	}
 
-	if ( modeName == "DualColor" ) {
+	if ( modeName == DualColor::getName() ) {
 		return new DualColor{ color1, color2 };
 	}
 
