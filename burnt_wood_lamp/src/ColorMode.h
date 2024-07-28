@@ -499,16 +499,37 @@ private:
 	uint8_t mode = 1;
 };
 
+class ColorWheel : public ColorMode {
+public:
+	uint16 Update( CRGB *leds_out ) override {
+		hue += 1;
+		CHSV color{hue, 255, 255};
+		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
+			leds_out[ i ] = color;
+		}
+
+		return 0;
+	}
+
+	constexpr static const char *getName() {
+		return "ColorWheel";
+	}
+
+private:
+	uint8_t hue = 0;
+};
+
 class ColorPulse : public ColorMode {
 public:
 	uint16 Update( CRGB *leds_out ) override {
+		uint64_t currentMillis = millis();
+		hue = calc_hue(currentMillis);
 		CHSV color{hue, saturation, value};
 		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
 			leds_out[ i ] = color;
 		}
-		hue += 1;
 
-		return calc_wait_time();
+		return 0;
 	}
 
 	constexpr static const char *getName() {
@@ -516,13 +537,13 @@ public:
 	}
 
 private:
-	uint16_t calc_wait_time() {
-		uint64_t currentMillis = millis();
-		double fast = sin(currentMillis / 2700);
-		double medium = sin(currentMillis / 53000);
-		double slow = sin(currentMillis / 71000);
-		return (uint16_t) 63 * (fast*medium*slow) + 64;
+	uint8_t calc_hue(uint64_t currentMillis) {
+		double wave1 = sin(double(currentMillis) / 2700.0);
+		double wave2 = sin(double(currentMillis) / 5300.0);
+		double wave3 = sin(double(currentMillis) / 1100.0);
+		return (uint8_t) 511 * (wave1*wave2*wave3) + 255;
 	}
+
 	uint8_t hue = 0;
 	uint8_t saturation = 255;
 	uint8_t value = 255;
