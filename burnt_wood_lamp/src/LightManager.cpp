@@ -15,7 +15,7 @@ bool LightManager::setMode( const String &newModeName, uint32_t color1, uint32_t
 
 	delete currentColorMode;
 	currentColorMode = newMode;
-	
+
 	delayTime = 0;
 	return true;
 }
