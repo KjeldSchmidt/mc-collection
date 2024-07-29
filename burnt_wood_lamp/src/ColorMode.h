@@ -258,13 +258,15 @@ class ColorPulse : public ColorMode {
 public:
 	uint16 Update( CRGB *leds_out ) override {
 		uint64_t currentMillis = millis();
-		hue = calc_hue(currentMillis);
-		CHSV color{hue, saturation, value};
+		double start_hue = calc_start_hue(currentMillis);
+		double end_hue = calc_end_hue(currentMillis);
+		double step = double(end_hue - start_hue)/NUM_LEDS;
 		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
-			leds_out[ i ] = color;
+			uint8_t hue = start_hue + step*i;
+			leds_out[ i ] = CHSV(hue, 255, 255);
 		}
 
-		return 0;
+		return 10;
 	}
 
 	constexpr static const char *getName() {
@@ -272,16 +274,19 @@ public:
 	}
 
 private:
-	uint8_t calc_hue(uint64_t currentMillis) {
-		double wave1 = sin(double(currentMillis) / 2700.0);
-		double wave2 = sin(double(currentMillis) / 5300.0);
-		double wave3 = sin(double(currentMillis) / 1100.0);
-		return (uint8_t) 511 * (wave1*wave2*wave3) + 255;
+	static double calc_start_hue(uint64_t currentMillis) {
+		double wave1 = sin(double(currentMillis) / 13500.0);
+		double wave2 = sin(double(currentMillis) / 26500.0);
+		double wave3 = sin(double(currentMillis) / 5500.0);
+		return 511 * (wave1*wave2*wave3) + 255;
 	}
 
-	uint8_t hue = 0;
-	uint8_t saturation = 255;
-	uint8_t value = 255;
+	static double calc_end_hue(uint64_t currentMillis) {
+		double wave1 = sin(double(currentMillis) / 12700.0);
+		double wave2 = sin(double(currentMillis) / 25650.0);
+		double wave3 = sin(double(currentMillis) / 6555.0);
+		return 511 * (wave1*wave2*wave3) + 255;
+	}
 };
 
 class SingleColor : public ColorMode {
