@@ -35,7 +35,7 @@ void LightManager::updateLEDs() {
 }
 
 const char *LightManager::getModes() {
-	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorWheel, ColorPulse, DiscoStrobo, SingleColor(Color), LaurasPartymodus(Beta), KjeldPartyModus";
+	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorWheel, ColorPulse, DiscoStrobo, LauraPartyMode, KjeldPartyMode";
 }
 
 ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2, const String &payload ) {

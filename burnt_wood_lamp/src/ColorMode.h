@@ -93,6 +93,10 @@ public:
 		return 500;
 	}
 
+	constexpr static const char *getName() {
+		return "KjeldPartyMode";
+	}
+
 private:
 	bool init = false;
 };
@@ -227,7 +231,7 @@ public:
 	}
 
 	constexpr static const char *getName() {
-		return "ColorTick";
+		return "GlobalColorTick";
 	}
 
 private:
@@ -301,7 +305,7 @@ public:
 	}
 
 	constexpr static const char *getName() {
-		return "SingleColor( Color )";
+		return "SingleColor";
 	}
 
 private:
@@ -326,7 +330,7 @@ public:
 	}
 
 	constexpr static const char *getName() {
-		return "DualColor( Color, Color )";
+		return "DualColor";
 	}
 
 private:
@@ -386,6 +390,10 @@ public:
 		CRGB(MAX_BRIGHTNESS_PER_CHANNEL, MAX_BRIGHTNESS_PER_CHANNEL, MAX_BRIGHTNESS_PER_CHANNEL),
 		50
 	) {}
+
+	constexpr static const char *getName() {
+		return "DiscoStrobo";
+	}
 };
 
 class CityAtSundown : public DualColor {
