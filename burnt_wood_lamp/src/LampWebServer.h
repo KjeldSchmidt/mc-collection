@@ -16,10 +16,12 @@ public:
 
 	void initServer();
 
+	void colorFromPayload() const;
+
 private:
 	void registerHandlers();
 
-	void setMode();
+	void setMode() const;
 
 	void getModes();
 

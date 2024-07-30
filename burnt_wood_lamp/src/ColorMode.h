@@ -6,7 +6,6 @@
 #define BURNT_WOOD_LAMP_COLORMODE_H
 
 #include "FastLED.h"
-#include "base64decode.h"
 
 class ColorMode {
 public:
@@ -41,12 +40,9 @@ public:
 
 class ColorFromPayload : public ColorMode {
 public:
-	explicit ColorFromPayload( const String &payload ): colors{} {
-		uint8_t binary_payload[payload.length()];
-		base64_decode(payload, binary_payload);
-
+	explicit ColorFromPayload( const uint8_t *payload ): colors{} {
 		for (size_t i = 0; i < NUM_LEDS; i++) {
-			colors[i] = CRGB(binary_payload[3*i], binary_payload[3*i+1], binary_payload[3*i+2]);
+			colors[i] = CRGB(payload[3*i], payload[3*i+1], payload[3*i+2]);
 		}
 	}
 

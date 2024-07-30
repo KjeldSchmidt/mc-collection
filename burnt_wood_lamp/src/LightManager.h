@@ -19,7 +19,7 @@ public:
 		const String &newModeName,
 		uint32_t color1 = 0,
 		uint32_t color2 = 0,
-		const String &payload = ""
+		const uint8_t *payload = nullptr
 	);
 
 	void updateLEDs();
@@ -31,7 +31,7 @@ private:
 		const String &modeName,
 		uint32_t color1,
 		uint32_t color2,
-		const String &payload
+		const uint8_t *payload
 	);
 
 	ColorMode *currentColorMode;

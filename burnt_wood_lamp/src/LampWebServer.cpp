@@ -7,6 +7,7 @@
 void LampWebServer::registerHandlers() {
 	server->on( "/setMode", [ & ]() { this->setMode(); } );
 	server->on( "/getModes", [ & ]() { this->getModes(); } );
+	server->on("/ColorFromPayload", HTTP_POST, [ & ]() { this->colorFromPayload(); });
 }
 
 void LampWebServer::initServer() {
@@ -14,7 +15,21 @@ void LampWebServer::initServer() {
 	server->begin();
 }
 
-void LampWebServer::setMode() {
+
+void LampWebServer::colorFromPayload() const {
+	if ( !server->hasArg( "plain" )) {
+		server->send( 400, "text/plain", "ColorFromPaylopad requires a payload." );
+		return;
+	}
+
+	// size_t length = server->arg("plain").length();
+	const uint8_t* payload = reinterpret_cast<const uint8_t*>(server->arg("plain").c_str());
+
+	lightManager->setMode( ColorFromPayload::getName(), 0, 0, payload );
+	server->send( 200 );
+}
+
+void LampWebServer::setMode() const {
 	bool success = false;
 	String newModeName = server->arg( "newMode" );
 	server->sendHeader( "Access-Control-Allow-Origin", "*" );
@@ -31,13 +46,6 @@ void LampWebServer::setMode() {
 			return;
 		}
 		success = lightManager->setMode( newModeName, color );
-	} else if ( newModeName == ColorFromPayload::getName() ) {
-		if ( !server->hasArg( "payload" )) {
-			server->send( 400, "text/plain", "ColorFromPaylopad requires a payload." );
-			return;
-		}
-		const String payload = server->arg( "payload" );
-		success = lightManager->setMode( newModeName, 0, 0, payload );
 	}
 
 	if ( server->args() == 1 ) {

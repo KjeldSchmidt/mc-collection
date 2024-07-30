@@ -12,7 +12,7 @@ bool LightManager::setMode(
 	const String &newModeName,
 	uint32_t color1,
 	uint32_t color2,
-	const String &payload
+	const uint8_t *payload
 ) {
 	ColorMode *newMode = decodeColorModeString( newModeName, color1, color2, payload );
 
@@ -38,7 +38,7 @@ const char *LightManager::getModes() {
 	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorWheel, ColorPulse, DiscoStrobo, LauraPartyMode, KjeldPartyMode";
 }
 
-ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2, const String &payload ) {
+ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2, const uint8_t *payload ) {
 	if ( modeName == CityAtSundown::getName() ) {
 		return new CityAtSundown{};
 	}
