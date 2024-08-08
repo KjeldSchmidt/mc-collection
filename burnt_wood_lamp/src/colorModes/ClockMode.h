@@ -28,11 +28,11 @@ public:
 	}
 
 private:
-	const CRGB hourColor = CRGB(255,0,0);
-	const CRGB minuteColor = CRGB(0,255,0);
-	const CRGB bgColor = CRGB(0,0,255);
-	const uint16 ledRadius = 5;
-	const uint8 ledRadiusSquareXTimes = 2;
+	const CRGB hourColor = CRGB(255,100,0);
+	const CRGB minuteColor = CRGB(0,170,60);
+	const CRGB bgColor = CRGB(120,170,0);
+	const uint16 ledRadius = 1;
+	const uint8 ledRadiusSquareXTimes = 1;
 	const CRGB debugColor = CRGB(0,0,0);
 	const bool debugIsOn = false;
 
@@ -53,8 +53,8 @@ private:
 	}
 
 	// Display Time on Big Ring using hourColor, minuteColor & bgColor
-	void Clock(CRGB *leds_out, uint16 startLed, uint16 endLed) {
-		uint16 ledCount = endLed - startLed;
+	void Clock(CRGB *leds_out, const uint16 startLed, const uint16 endLed) {
+		const uint16 ledCount = endLed - startLed;
 		PrintClockParams(leds_out, startLed, endLed);
 
 		// Time
@@ -78,7 +78,7 @@ private:
 
 		// Bg Color // todo use set single color
    		for ( uint16_t i = startLed; i < endLed; i++ ) {
-                leds_out[i] = CRGB(0,0,126);
+                leds_out[i] = bgColor;
         }
 		
 		SetRadiusColors("Set Hour Radius Colors: ", leds_out, ledRadius, adjacentHourLedIndices, hourColor);
@@ -114,12 +114,15 @@ private:
 		Serial.print(hourLedIndex);
 		Serial.print(", minuteLedIndex: ");
 		Serial.print(minuteLedIndex);
+		Serial.println();
+
 		Serial.print(", adjacentHourLedIndices: ");
 		for (size_t i = 0; i < adjacentHourLedIndices.size(); i++){
 			Serial.print(adjacentHourLedIndices[i]);
 			Serial.print(", ");
 		}
 		Serial.println();
+
 		Serial.print(", adjacentMinuteLedIndices: ");
 		for (size_t i = 0; i < adjacentMinuteLedIndices.size(); i++){
 			Serial.print(adjacentMinuteLedIndices[i]);
@@ -171,25 +174,45 @@ private:
 			uint16 index = indices[i];
 			CRGB finalColor = ColorUtil::IncreaseColorPerLed(color, index, factorPerLed, ledRadiusSquareXTimes);
 
-			ColorUtil::SafeSetColor(leds_out, index, finalColor);
+			ColorUtil::SafeSetColor(leds_out, index, color); // todo disabled finalColor);
 
 			increment++;
 		}
 
+		Serial.print("ledRadius: ");
+		Serial.print(ledRadius);
+		Serial.println();
+
+		Serial.print(", indices: ");
+		for (size_t i = 0; i < indices.size(); i++){
+			Serial.print(indices[i]);
+			Serial.print(", ");
+		}
+		Serial.println();
+
 		// MidPoint
 		uint16 midPointIndex = indices[ledRadius];
+		Serial.println();
+		Serial.print("ledRadius: ");
+		Serial.print(ledRadius);
+		Serial.println();
+		Serial.print("midPointIndex: ");
+		Serial.print(midPointIndex);
+		Serial.println();
 		ColorUtil::SafeSetColor(leds_out, midPointIndex, color);
 
 		// Decreasing Color
+		/* DISABLED COLOR GRADING
 		increment = 0;
 		uint16 startIndexBack = ledRadius + 1;
 		for (uint16 i = startIndexBack; i < startIndexBack + ledRadius; i++)
 		{
 			uint16 index = indices[i];
 			CRGB finalColor = ColorUtil::DecreaseColorPerLed(color, index, factorPerLed, ledRadiusSquareXTimes);
-			ColorUtil::SafeSetColor(leds_out, index, finalColor);
+			ColorUtil::SafeSetColor(leds_out, index, color);// todo disabled finalColor);
 			increment++;
 		}
+		*/
 	}
 
 	void PrintColor(String preText, uint16 index, double factorPerLed, CRGB color){

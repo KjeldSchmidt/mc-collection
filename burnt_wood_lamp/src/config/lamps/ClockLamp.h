@@ -22,7 +22,7 @@ class ClockLamp: public Lamp {
    //  const int16 CLOCK_S_PART_1_NUM_LEDS 33 // Todo Update
    //  const int16 CLOCK_S_PART_2_NUM_LEDS 32 // Todo Update
    static const uint16 CLOCK_RING_LEFT_START = 162; // Todo Update
-   static const uint16 CLOCK_RING_LEFT_NUM_LEDS = 22; // Todo Update
+   static const uint16 CLOCK_RING_LEFT_NUM_LEDS = 24; // Todo Update
    // static const String WEATHER_URL = 'https://obuymo6rdfdehomshnutqiyqd40mvmnf.lambda-url.eu-central-1.on.aws/';
    static const bool debugIsOn = false;
     std::vector<LedStripe*> ledStripes;

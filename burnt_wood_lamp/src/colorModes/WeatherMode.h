@@ -29,8 +29,8 @@ public:
 	}
 
 private:
-	const CRGB rainColor = CRGB(0, 255, 255);
-	const CRGB noRainColor = CRGB(255, 0, 0);
+	const CRGB rainColor = CRGB(0, 200, 200);
+	const CRGB noRainColor = CRGB(200, 150, 0);
 
 	// 1000 free requests on weather api per day so update every 15minutes will be -> 96/day
 	const int fifteenMinutesInMs = 15 * 60 * 1000; //todo increase again
