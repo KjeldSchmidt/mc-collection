@@ -3,6 +3,6 @@
 .piolibdeps
 libs/
 cmake-build-*
-*/.pio/*
-*/.idea/*
+**/.pio/*
+**/.idea/*
 .DS_STORE
