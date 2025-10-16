@@ -38,47 +38,24 @@ const char *LightManager::getModes() {
 	return "CityAtSundown, GlobalColorTick, LightsOut, WakeUp, Pacifica, ColorWheel, ColorPulse, DiscoStrobo, LauraPartyMode, KjeldPartyMode";
 }
 
-ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2, const uint8_t *payload ) {
-	if ( modeName == CityAtSundown::getName() ) {
-		return new CityAtSundown{};
-	}
-	if ( modeName == GlobalColorTick::getName() ) {
-		return new GlobalColorTick{};
-	}
-	if ( modeName == LightsOut::getName() ) {
-		return new LightsOut{};
-	}
-	if ( modeName == WakeUp::getName() ) {
-		return new WakeUp{};
-	}
-	if ( modeName == Pacifica::getName() ) {
-		return new Pacifica{};
-	}
-	if ( modeName == ColorWheel::getName() ) {
-		return new ColorWheel{};
-	}
-	if ( modeName == ColorPulse::getName() ) {
-		return new ColorPulse{};
-	}
-	if ( modeName == SingleColor::getName() ) {
-		return new SingleColor{ color1 };
-	}
-	if ( modeName == ColorFromPayload::getName() ) {
-		return new ColorFromPayload{ payload };
-	}
-	if ( modeName == DiscoStrobo::getName() ) {
-		return new DiscoStrobo{};
-	}
-	if ( modeName == LauraPartyMode::getName() ) {
-		return new LauraPartyMode{};
-	}
-	if ( modeName == KjeldPartyMode::getName() ) {
-		return new KjeldPartyMode{};
-	}
+const char *LightManager::getCurrentMode() const {
+	return currentColorMode->getName();
+}
 
-	if ( modeName == DualColor::getName() ) {
-		return new DualColor{ color1, color2 };
-	}
+ColorMode *LightManager::decodeColorModeString( const String &modeName, uint32_t color1, uint32_t color2, const uint8_t *payload ) {
+	if ( modeName == "CityAtSundown" ) return new CityAtSundown{};
+	if ( modeName == "GlobalColorTick" ) return new GlobalColorTick{};
+	if ( modeName == "LightsOut" ) return new LightsOut{};
+	if ( modeName == "WakeUp" ) return new WakeUp{};
+	if ( modeName == "Pacifica" ) return new Pacifica{};
+	if ( modeName == "ColorWheel" ) return new ColorWheel{};
+	if ( modeName == "ColorPulse" ) return new ColorPulse{};
+	if ( modeName == "DiscoStrobo" ) return new DiscoStrobo{};
+	if ( modeName == "LauraPartyMode" ) return new LauraPartyMode{};
+	if ( modeName == "KjeldPartyMode" ) return new KjeldPartyMode{};
+	if ( modeName == "SingleColor" ) return new SingleColor{ color1 };
+	if ( modeName == "ColorFromPayload" ) return new ColorFromPayload{ payload };
+	if ( modeName == "DualColor" ) return new DualColor{ color1, color2 };
 
 	return nullptr;
 }

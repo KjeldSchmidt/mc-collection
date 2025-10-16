@@ -5,9 +5,10 @@
 #include "LampWebServer.h"
 
 void LampWebServer::registerHandlers() {
-	server->on( "/setMode", [ & ]() { this->setMode(); } );
-	server->on( "/getModes", [ & ]() { this->getModes(); } );
+	server->on("/setMode", [ & ]() { this->setMode(); });
+	server->on("/getModes", [ & ]() { this->getModes(); });
 	server->on("/ColorFromPayload", HTTP_POST, [ & ]() { this->colorFromPayload(); });
+	server->on("/status", [ & ]() { this->getStatus(); });
 }
 
 void LampWebServer::initServer() {
@@ -25,7 +26,7 @@ void LampWebServer::colorFromPayload() const {
 	// size_t length = server->arg("plain").length();
 	const uint8_t* payload = reinterpret_cast<const uint8_t*>(server->arg("plain").c_str());
 
-	lightManager->setMode( ColorFromPayload::getName(), 0, 0, payload );
+	lightManager->setMode( "ColorFromPayload", 0, 0, payload );
 	server->send( 200 );
 }
 
@@ -63,8 +64,12 @@ void LampWebServer::handleClient() {
 	server->handleClient();
 }
 
-void LampWebServer::getModes() {
+void LampWebServer::getModes() const {
 	server->send( 200, "text/plain", LightManager::getModes());
+}
+
+void LampWebServer::getStatus() const {
+	server->send( 200, "text/plain", lightManager->getCurrentMode());
 }
 
 LampWebServer::LampWebServer( LightManager *lightManager, ESP8266WebServer *server )

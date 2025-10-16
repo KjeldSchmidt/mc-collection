@@ -13,7 +13,7 @@ public:
 
 	virtual ~ColorMode() = default;
 
-	constexpr static const char *getName() {
+	virtual const char *getName() const {
 		return "ColorMode";
 	}
 };
@@ -32,7 +32,7 @@ public:
 		return 50;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "FireMode";
 	}
 };
@@ -54,7 +54,7 @@ public:
 		return 1000;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "ColorFromPayload";
 	}
 private:
@@ -89,7 +89,7 @@ public:
 		return 500;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "KjeldPartyMode";
 	}
 
@@ -144,7 +144,7 @@ public:
 		return 10;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "LauraPartyMode";
 	}
 
@@ -166,7 +166,7 @@ public:
 		return 0;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "DualColorDrift";
 	}
 
@@ -202,7 +202,7 @@ public:
 		return 100;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "LEDWalk";
 	}
 
@@ -226,7 +226,7 @@ public:
 		return 1500;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "GlobalColorTick";
 	}
 
@@ -246,7 +246,7 @@ public:
 		return 0;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "ColorWheel";
 	}
 
@@ -269,7 +269,7 @@ public:
 		return 10;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "ColorPulse";
 	}
 
@@ -297,10 +297,10 @@ public:
 		for ( uint8_t i = 0; i < NUM_LEDS; i++ ) {
 			leds_out[ i ] = color;
 		}
-		return 10000;
+		return 100;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "SingleColor";
 	}
 
@@ -322,10 +322,10 @@ public:
 				leds_out[ i ] = color_upper;
 			}
 		}
-		return 1000;
+		return 100;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "DualColor";
 	}
 
@@ -364,7 +364,7 @@ class LightsOut : public SingleColor {
 public:
 	LightsOut() : SingleColor( CRGB::Black ) {}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "LightsOut";
 	}
 };
@@ -375,7 +375,7 @@ public:
 			CRGB( MAX_BRIGHTNESS_PER_CHANNEL, MAX_BRIGHTNESS_PER_CHANNEL, MAX_BRIGHTNESS_PER_CHANNEL )
 	) {}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "WakeUp";
 	}
 };
@@ -387,7 +387,7 @@ public:
 		50
 	) {}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "DiscoStrobo";
 	}
 };
@@ -399,7 +399,7 @@ public:
 			CRGB( 0x611e01 )
 	) {}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "CityAtSundown";
 	}
 };
@@ -473,7 +473,7 @@ public:
 		return 20;
 	}
 
-	constexpr static const char *getName() {
+	const char *getName() const override {
 		return "Pacifica";
 	}
 

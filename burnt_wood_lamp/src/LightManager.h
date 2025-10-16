@@ -15,6 +15,8 @@ public:
 
 	static const char *getModes();
 
+	const char *getCurrentMode() const;
+
 	bool setMode(
 		const String &newModeName,
 		uint32_t color1 = 0,

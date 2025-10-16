@@ -23,7 +23,9 @@ private:
 
 	void setMode() const;
 
-	void getModes();
+	void getModes() const;
+
+	void getStatus() const;
 
 	LightManager *lightManager;
 
