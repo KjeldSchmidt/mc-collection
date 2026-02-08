@@ -23,6 +23,7 @@ void SoundPlayer::begin() {
 	mp3.begin();
 	mp3.setSynchronous( true );
 	mp3.setCallback( nullptr );
+	mp3.volume(mp3.volumeMax());
 }
 
 bool SoundPlayer::check() {

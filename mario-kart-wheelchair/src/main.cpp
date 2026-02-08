@@ -1,33 +1,40 @@
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <ArduinoOTA.h>
 #include "SoundPlayer.h"
-#include "Secrets.h"
+// Disable interrupts during WS2812 data out so WiFi/Serial/timer don't corrupt timing
+#define FASTLED_ALLOW_INTERRUPTS 0
+#include "FastLED.h"
+#include "LightManager.h"
+
+const uint8_t PIN_PLAY = D1;  // GPIO5 on D1 Mini
+
+CRGB leds[NUM_LEDS];
+LightManager *lightManager = new LightManager{ leds };
 
 SoundPlayer player( TX, RX );
 
-byte buffer_size = 18;
-byte buffer[18];
+volatile bool button_pressed = false;
+
+void IRAM_ATTR onPlayPressed() {
+    button_pressed = true;
+}
 
 void setup() {
     player.begin();
     delay( 50 );
 
-    WiFi.mode( WIFI_STA );
-    WiFi.begin( ssid, password );
-    while ( WiFi.waitForConnectResult() != WL_CONNECTED ) {
-        delay( 5000 );
-    }
+    pinMode( PIN_PLAY, INPUT_PULLUP );  // button D1 to GND; trigger on press (FALLING)
+    attachInterrupt( digitalPinToInterrupt( PIN_PLAY ), onPlayPressed, FALLING );
 
-    ArduinoOTA.setHostname( "mario-kart-wheelchair" );
-    ArduinoOTA.begin();
+    CFastLED::addLeds<CHIPSET, DATA_PIN, COLOR_ORDER>( leds, NUM_LEDS );
+    lightManager->updateLEDs();
 }
 
 void loop() {
-    ArduinoOTA.handle();
-    player.check();
+    if ( button_pressed ) {
+        button_pressed = false;
+        player.play_folder( 1 );
+        lightManager->setMode("ColorPulse");
+    }
 
-    player.play_folder( 5 );
-
-    delay( 10000 );
+    lightManager->updateLEDs();
 }
