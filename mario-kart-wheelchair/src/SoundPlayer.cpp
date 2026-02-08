@@ -19,6 +19,7 @@ void SoundPlayer::play_next() {
 }
 
 void SoundPlayer::begin() {
+	Serial.begin( 9600 );  // YX5300 default baud; UART exclusive to module
 	mp3.begin();
 	mp3.setSynchronous( true );
 	mp3.setCallback( nullptr );
@@ -32,21 +33,17 @@ bool SoundPlayer::check() {
 
 void SoundPlayer::handle_message() {
 	const MD_YX5300::cbData *status = mp3.getStatus();
-	Serial.print(F( "STS_??? 0x" ));
-	Serial.println( status->code, HEX );
 	switch ( status->code ) {
 		case MD_YX5300::STS_FILE_END:
-		case MD_YX5300::STS_VERSION: // Boldly attempt to ignore errors.
-			Serial.println( "Song done" );
+		case MD_YX5300::STS_VERSION:
 			play_next();
 			break;
 		case MD_YX5300::STS_ERR_FILE:
-			Serial.println( "File Not Found" );
+			// file not found, stop or retry as needed
 			break;
 		default:
 			break;
 	}
-	Serial.println();
 }
 
 void SoundPlayer::play_current() {
